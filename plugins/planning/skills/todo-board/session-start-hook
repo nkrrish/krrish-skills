@@ -1,0 +1,23 @@
+#!/bin/bash
+# SessionStart hook for the todo-board skill.
+# Reads the hook payload on stdin, finds the project root for the session's cwd,
+# and, when <root>/.claude/todo-board.json exists, injects the board link into
+# the model's context so any new chat in that directory knows the board.
+payload="$(cat)"
+cwd="$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null)"
+[ -n "$cwd" ] || cwd="$PWD"
+root="$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$cwd")"
+f="$root/.claude/todo-board.json"
+[ -f "$f" ] || exit 0
+jq -c --arg root "$root" '{
+  hookSpecificOutput: {
+    hookEventName: "SessionStart",
+    additionalContext: (
+      "This project has a todo board. Title: " + (.title // "Board") +
+      ". URL: " + .url +
+      ". Record: " + $root + "/.claude/todo-board.json. " +
+      "When the user asks about the board, todos, or cards, or types /todo-board, use the todo-board skill and drive this board at that URL. " +
+      "Never publish a new board for this project."
+    )
+  }
+}' "$f"

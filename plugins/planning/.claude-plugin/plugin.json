@@ -1,0 +1,8 @@
+{
+  "name": "planning",
+  "version": "1.0.0",
+  "description": "Per-project todo/kanban board published as a private Artifact with a shared database.",
+  "author": { "name": "Krishna", "url": "https://github.com/nkrrish" },
+  "license": "GPL-3.0-or-later",
+  "keywords": ["todo", "kanban", "board", "tasks", "planning", "project-management"]
+}

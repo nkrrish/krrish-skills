@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "krrish-skills",
+  "description": "Skills that verify their own output — each ships the tooling to prove it worked",
+  "owner": { "name": "Krishna", "url": "https://github.com/nkrrish" },
+  "plugins": [
+    {
+      "name": "branding",
+      "description": "Design icon marks and logos as SVG, with a measurable quality gate: 16px legibility, monochrome-template survival, and a prior-art check against 3,450 real brand marks.",
+      "source": "./plugins/branding",
+      "category": "design"
+    },
+    {
+      "name": "planning",
+      "description": "A three-column todo/kanban board per project, published as a private Artifact with a shared database and drag-and-drop.",
+      "source": "./plugins/planning",
+      "category": "productivity"
+    }
+  ]
+}

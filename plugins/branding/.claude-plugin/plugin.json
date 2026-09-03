@@ -1,0 +1,8 @@
+{
+  "name": "branding",
+  "version": "1.0.0",
+  "description": "Icon-mark and logo design in SVG, with an audit suite that measures whether the output actually works.",
+  "author": { "name": "Krishna", "url": "https://github.com/nkrrish" },
+  "license": "GPL-3.0-or-later",
+  "keywords": ["logo", "icon", "svg", "favicon", "branding", "design", "app-icon"]
+}
