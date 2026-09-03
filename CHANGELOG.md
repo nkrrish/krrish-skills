@@ -7,6 +7,16 @@ claude plugin marketplace update krrish-skills
 claude plugin update <plugin>          # restart required
 ```
 
+## planning 1.2.0
+
+- The SessionStart hook now ships with the plugin (`hooks/hooks.json`), so
+  installing `planning` wires it up automatically. Previously it had to be added
+  to `settings.json` by hand.
+- If you added that hook manually, remove it after updating or it will run twice:
+  delete the `SessionStart` entry pointing at
+  `.../skills/todo-board/session-start-hook` from your `settings.json`.
+- The hook requires `jq`.
+
 ## planning 1.1.0
 
 - Reworked the todo-board HTML template: card modal, segmented All/User/Agent

@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/skills/todo-board/session-start-hook",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -63,6 +63,9 @@ A three-column board (Todo / Review / Done) published as a private Artifact back
 database. Drag and drop, card view, live search, owner filter. One board per project; the skill
 creates it and drives the cards.
 
+Ships a SessionStart hook: any chat opened in a directory with a board picks up its link
+automatically, so you never publish a second board for the same project. Requires `jq`.
+
 ---
 
 ## Why the verification focus

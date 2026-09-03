@@ -1,6 +1,6 @@
 {
   "name": "planning",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Per-project todo/kanban board published as a private Artifact with a shared database.",
   "author": {
     "name": "Krishna",
