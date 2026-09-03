@@ -94,6 +94,14 @@ Bad fixtures must exit exactly 1. An audit that cannot run exits 3, and the runn
 as a failure rather than a detection — otherwise a missing dependency produces a green suite
 that measured nothing.
 
+It also checks shipped HTML assets: every `{{PLACEHOLDER}}` in a template must be documented
+in the skill's `SKILL.md` or `references/`, and the document must parse with no unclosed tags.
+A renamed placeholder is otherwise silent — nothing notices until substitution leaves it in the
+published page.
+
+Where the `claude` CLI is available the suite also runs `claude plugin validate` on the
+marketplace and each plugin; it skips that step where the CLI is absent.
+
 Requires `librsvg2-bin` and ImageMagick (either version 6 or 7).
 
 ## Licence

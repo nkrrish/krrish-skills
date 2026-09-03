@@ -9,6 +9,17 @@ fail=0
 echo "== manifests =="
 python3 "$ROOT/tests/validate_manifests.py" || fail=1
 
+if command -v claude >/dev/null 2>&1; then
+  echo
+  echo "== official manifest validator =="
+  for m in "$ROOT" "$ROOT"/plugins/*/; do
+    if claude plugin validate "$m" >/dev/null 2>&1; then echo "  ok   $(basename "$m")"
+    else echo "  FAIL $(basename "$m")"; claude plugin validate "$m" 2>&1 | sed 's/^/    /'; fail=1; fi
+  done
+else
+  echo "  (claude CLI not present — skipping official validator)"
+fi
+
 echo
 echo "== audit: good fixtures must pass (exit 0) =="
 bash "$AUDIT" "$FIX/good" >/tmp/audit_good.txt 2>&1; rc=$?

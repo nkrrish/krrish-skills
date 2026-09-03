@@ -1,12 +1,45 @@
 #!/usr/bin/env python3
 """Structural checks on the marketplace, its plugins, and every SKILL.md."""
-import json, os, re, sys
+import html.parser, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 errs, checked = [], 0
 
 
 def err(m): errs.append(m)
+
+
+class _HTML(html.parser.HTMLParser):
+    VOID = {"br", "img", "input", "meta", "link", "hr", "source", "col",
+            "area", "base", "embed", "param", "track", "wbr",
+            "path", "circle", "rect", "line", "polyline", "polygon", "use", "stop"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag not in self.VOID:
+            self.stack.append(tag)
+
+    def handle_startendtag(self, tag, attrs):
+        pass
+
+    def handle_endtag(self, tag):
+        if tag in self.VOID:
+            return
+        if tag in self.stack:
+            while self.stack and self.stack.pop() != tag:
+                pass
+
+
+def check_html(body):
+    p = _HTML()
+    try:
+        p.feed(body)
+    except Exception as e:
+        return [f"parse error: {e}"]
+    return p.stack
 
 
 mkt_path = os.path.join(ROOT, ".claude-plugin", "marketplace.json")
@@ -62,6 +95,25 @@ for entry in mkt.get("plugins", []):
         for ref in set(re.findall(r"references/([A-Za-z0-9_.-]+\.md)", text)):
             if not os.path.isfile(os.path.join(sd, "references", ref)):
                 err(f"{d}: SKILL.md references missing references/{ref}")
+
+        # --- shipped HTML assets: must parse, and every {{PLACEHOLDER}} in one
+        # must be documented, or the skill silently fails at substitution time.
+        docs = text
+        rd = os.path.join(sd, "references")
+        if os.path.isdir(rd):
+            for r in sorted(os.listdir(rd)):
+                if r.endswith(".md"):
+                    docs += open(os.path.join(rd, r), encoding="utf-8").read()
+        for asset in sorted(f for f in os.listdir(sd) if f.endswith(".html")):
+            ap = os.path.join(sd, asset)
+            body = open(ap, encoding="utf-8").read()
+            unclosed = check_html(body)
+            if unclosed:
+                err(f"{d}/{asset}: unclosed tags at EOF: {', '.join(unclosed[:5])}")
+            for ph in sorted(set(re.findall(r"\{\{([A-Z_]+)\}\}", body))):
+                if "{{%s}}" % ph not in docs:
+                    err(f"{d}/{asset}: placeholder {{{{{ph}}}}} is not documented "
+                        f"in SKILL.md or references/ — substitution would leave it in place")
 
 print(f"marketplace '{mkt['name']}': {len(mkt.get('plugins', []))} plugins, {checked} skills checked")
 if errs:
