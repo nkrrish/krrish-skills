@@ -4,7 +4,7 @@ Updates are pull-based. Nothing reaches an installed copy until the user runs:
 
 ```bash
 claude plugin marketplace update krrish-skills
-claude plugin update <plugin>          # restart required
+claude plugin update <plugin>@krrish-skills   # restart required
 ```
 
 ## planning 1.2.0
