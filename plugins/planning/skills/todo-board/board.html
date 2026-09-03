@@ -5,6 +5,7 @@
     --ground: #F5F6F2;
     --surface: #FFFFFF;
     --surface-2: #ECEEE7;
+    --surface-3: #E3E6DC;
     --line: #DDE0D6;
     --line-strong: #C4C8BB;
     --ink: #191B17;
@@ -16,6 +17,7 @@
     --iris-soft: #ECEAFB;
     --done: #2E8B57;
     --done-soft: #E3F3E8;
+    --danger: #B3261E;
     --shadow: 0 1px 2px rgba(20, 24, 12, 0.06), 0 8px 24px rgba(20, 24, 12, 0.08);
     --shadow-lift: 0 2px 4px rgba(20, 24, 12, 0.10), 0 16px 40px rgba(20, 24, 12, 0.18);
     --radius: 10px;
@@ -28,6 +30,7 @@
       --ground: #151713;
       --surface: #1F221D;
       --surface-2: #272A24;
+      --surface-3: #30342C;
       --line: #30342D;
       --line-strong: #444940;
       --ink: #ECEEE6;
@@ -39,6 +42,7 @@
       --iris-soft: #2A2842;
       --done: #6CC58F;
       --done-soft: #1F3328;
+      --danger: #F08A82;
       --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
       --shadow-lift: 0 2px 4px rgba(0,0,0,0.5), 0 16px 40px rgba(0,0,0,0.55);
     }
@@ -47,6 +51,7 @@
     --ground: #151713;
     --surface: #1F221D;
     --surface-2: #272A24;
+    --surface-3: #30342C;
     --line: #30342D;
     --line-strong: #444940;
     --ink: #ECEEE6;
@@ -58,6 +63,7 @@
     --iris-soft: #2A2842;
     --done: #6CC58F;
     --done-soft: #1F3328;
+    --danger: #F08A82;
     --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
     --shadow-lift: 0 2px 4px rgba(0,0,0,0.5), 0 16px 40px rgba(0,0,0,0.55);
   }
@@ -76,244 +82,188 @@
   button, input, textarea, select { font: inherit; color: inherit; }
   button { cursor: pointer; }
   :focus-visible { outline: 2px solid var(--iris); outline-offset: 2px; }
+  svg { display: block; }
 
   .app { display: flex; flex-direction: column; height: 100%; }
 
-  /* Header */
+  /* ---------- Header ---------- */
   .topbar {
-    display: flex; align-items: center; gap: 16px;
-    padding: 18px 28px 10px;
-    flex-wrap: wrap;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 18px 28px 6px;
   }
   .brand { display: flex; align-items: baseline; gap: 12px; }
-  .brand .mark {
-    align-self: center;
-    width: 26px; height: 26px; display: block; flex: none;
-  }
+  .brand .mark { align-self: center; width: 26px; height: 26px; flex: none; }
   .brand h1 {
-    margin: 0;
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: 30px;
-    line-height: 1;
-    letter-spacing: -0.01em;
-    text-wrap: balance;
+    margin: 0; font-family: var(--serif); font-weight: 400; font-size: 30px;
+    line-height: 1; letter-spacing: -0.01em; text-wrap: balance;
   }
   .brand .sub { color: var(--muted); font-size: 13px; }
   .spacer { flex: 1; }
-  .status {
-    display: inline-flex; align-items: center; gap: 6px;
-    color: var(--muted); font-size: 12px;
-  }
+  .status { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
   .status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
   .status.live .dot { background: var(--done); }
   .status.local .dot { background: #D9A400; }
 
-  /* Toolbar row under the title: search, owner filter */
-  .toolbar {
-    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-    padding: 0 28px 10px;
+  /* Shared controls */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 0 12px;
+    border: 1px solid var(--line-strong); border-radius: 8px;
+    background: var(--surface); color: var(--ink);
+    font-size: 13px; font-weight: 500; line-height: 1;
+    transition: border-color 120ms ease, background 120ms ease, opacity 120ms ease;
   }
-  .toolbar label {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--muted); white-space: nowrap;
-  }
+  .btn:hover { border-color: var(--ink-2); }
+  .btn.primary { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  .btn.primary:hover { opacity: 0.88; }
+  .btn.quiet { border-color: transparent; background: transparent; color: var(--ink-2); }
+  .btn.quiet:hover { background: var(--surface-2); border-color: transparent; }
+  .btn.icon { width: 32px; padding: 0; justify-content: center; }
+  .btn.danger { color: var(--danger); }
+  .btn.danger:hover { border-color: var(--danger); background: transparent; }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn svg { width: 15px; height: 15px; }
   .control {
     height: 32px; border: 1px solid var(--line-strong); border-radius: 8px;
     background: var(--surface); color: var(--ink); padding: 0 10px; font-size: 13px;
   }
-  select.control { padding-right: 26px; }
-  .search {
-    position: relative; display: inline-flex; align-items: center; flex: 1 1 260px; max-width: 420px;
+  .control:focus { outline: none; border-color: var(--iris); box-shadow: 0 0 0 3px color-mix(in srgb, var(--iris) 22%, transparent); }
+  select.control { padding-right: 8px; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 6px 28px 12px;
   }
-  .search svg.glass { position: absolute; left: 10px; width: 15px; height: 15px; color: var(--muted); pointer-events: none; }
-  .search input {
-    width: 100%; padding-left: 32px; padding-right: 30px;
-  }
+  .search { display: inline-flex; align-items: center; gap: 4px; }
+  .search .field { position: relative; display: none; }
+  .search.open .field { display: inline-flex; }
+  .search input { width: 240px; padding-right: 30px; }
   .search input::placeholder { color: var(--muted); }
+  .search input::-webkit-search-cancel-button { display: none; }
   .search .clear {
-    position: absolute; right: 4px; width: 24px; height: 24px; border: 0; border-radius: 6px;
-    background: transparent; color: var(--muted); font-size: 14px; line-height: 1; display: none;
+    position: absolute; right: 4px; top: 4px; width: 24px; height: 24px; border: 0; border-radius: 6px;
+    background: transparent; color: var(--muted); font-size: 13px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
   }
   .search .clear:hover { background: var(--surface-2); color: var(--ink); }
-  .search.has-query .clear { display: inline-flex; align-items: center; justify-content: center; }
-  .toolbar .count-note { color: var(--muted); font-size: 12px; margin-left: auto; font-variant-numeric: tabular-nums; }
+  .search.open .glass-btn { color: var(--ink); background: var(--surface-2); }
   .filter {
     display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden;
     background: var(--surface); height: 32px;
   }
   .filter button {
     border: 0; background: transparent; padding: 0 11px; font-size: 12.5px; color: var(--ink-2); line-height: 1;
-    display: inline-flex; align-items: center;
+    display: inline-flex; align-items: center; gap: 5px;
   }
+  .filter button:hover { background: var(--surface-2); }
   .filter button.on { background: var(--ink); color: var(--ground); }
   .filter button + button { border-left: 1px solid var(--line); }
   .filter button.on + button, .filter button.on { border-left-color: transparent; }
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    border: 1px solid var(--line-strong);
-    background: var(--surface);
-    color: var(--ink);
-    padding: 7px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1;
-  }
-  .btn:hover { border-color: var(--ink-2); }
-  .btn.primary { background: var(--ink); color: var(--ground); border-color: var(--ink); }
-  .btn.primary:hover { opacity: 0.9; }
-  .btn.quiet { border-color: transparent; background: transparent; color: var(--ink-2); }
-  .btn.quiet:hover { background: var(--surface-2); border-color: transparent; }
-  .btn.danger { color: #B3261E; }
-  .btn.danger:hover { border-color: #B3261E; }
-  .btn:disabled { opacity: 0.45; cursor: default; }
+  .filter .owner { width: 14px; height: 14px; color: currentColor; }
+  .count-note { color: var(--muted); font-size: 12px; margin-left: auto; font-variant-numeric: tabular-nums; }
+  .toolbar .search { margin-left: 2px; }
 
-  /* Board */
+  /* ---------- Board ---------- */
   .board {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(260px, 1fr));
-    gap: 16px;
-    padding: 4px 28px 28px;
-    overflow-x: auto;
-    min-height: 0;
+    flex: 1; display: grid; grid-template-columns: repeat(3, minmax(270px, 1fr));
+    gap: 14px; padding: 0 28px 24px; overflow-x: auto; min-height: 0;
   }
   .column {
-    display: flex; flex-direction: column;
-    background: var(--surface-2);
-    border-radius: 14px;
-    min-height: 0;
-    transition: box-shadow 120ms ease;
+    display: flex; flex-direction: column; min-height: 0;
+    background: var(--surface-2); border-radius: 14px;
+    transition: box-shadow 120ms ease, background 120ms ease;
   }
-  .column.over { box-shadow: inset 0 0 0 2px var(--iris); }
-  .col-head {
-    display: flex; align-items: center; gap: 8px;
-    padding: 14px 14px 8px;
-  }
-  .col-head h2 {
-    margin: 0; font-size: 13px; font-weight: 600;
-    letter-spacing: 0.06em; text-transform: uppercase;
-  }
+  .column.over { box-shadow: inset 0 0 0 2px var(--iris); background: color-mix(in srgb, var(--iris) 6%, var(--surface-2)); }
+  .col-head { display: flex; align-items: center; gap: 8px; padding: 14px 14px 8px; }
+  .col-head h2 { margin: 0; font-size: 12.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .col-head .count {
-    font-family: var(--mono); font-size: 12px; color: var(--muted);
-    font-variant-numeric: tabular-nums;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-2);
+    background: var(--surface-3); border-radius: 999px; padding: 1px 7px; font-variant-numeric: tabular-nums;
   }
   .col-head .rule { color: var(--muted); font-size: 12px; margin-left: auto; text-align: right; }
-  .cards {
-    flex: 1;
-    display: flex; flex-direction: column; gap: 8px;
-    padding: 4px 10px 12px;
-    overflow-y: auto;
-    min-height: 80px;
-  }
+  .cards { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 4px 10px 12px; overflow-y: auto; min-height: 80px; }
   .empty {
-    color: var(--muted); font-size: 13px;
-    padding: 18px 8px; text-align: center;
+    color: var(--muted); font-size: 13px; padding: 20px 8px; text-align: center;
     border: 1px dashed var(--line-strong); border-radius: var(--radius);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
   }
+  .empty .btn { height: 28px; font-size: 12.5px; }
+  .drop-line { height: 3px; border-radius: 3px; background: var(--iris); margin: -4px 4px; }
 
   .card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 10px 12px 10px;
+    background: var(--surface); border-radius: var(--radius); padding: 10px 12px 9px;
     box-shadow: 0 1px 1px rgba(20,24,12,0.05), 0 0 0 1px var(--line);
-    cursor: grab;
-    display: flex; flex-direction: column; gap: 6px;
-    position: relative;
-    transition: box-shadow 120ms ease, transform 120ms ease;
+    cursor: grab; display: flex; flex-direction: column; gap: 5px; position: relative;
+    transition: box-shadow 140ms ease, transform 140ms ease;
   }
-  .card:hover { box-shadow: var(--shadow); }
+  .card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
   .card:active { cursor: grabbing; }
-  .card.dragging { opacity: 0.4; }
-  .card.placeholder {
-    background: transparent;
-    box-shadow: 0 0 0 2px var(--iris) inset;
-    min-height: 48px;
-  }
-  .card .num {
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
+  .card:focus-visible { outline: 2px solid var(--iris); outline-offset: 1px; }
+  .card.dragging { opacity: 0.35; transform: none; }
+  .card .meta { display: flex; align-items: center; justify-content: space-between; }
+  .card .num { font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .card .title { font-weight: 600; font-size: 14px; line-height: 1.3; }
   .card .summary {
     color: var(--ink-2); font-size: 12.5px;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
+  .card .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; }
+  .card .when { font-size: 11px; color: var(--muted); white-space: nowrap; margin-left: auto; }
   .chips { display: flex; flex-wrap: wrap; gap: 5px; }
-  .chip {
-    font-size: 11px; font-weight: 500;
-    padding: 2px 7px; border-radius: 999px;
-    background: var(--surface-2); color: var(--ink-2);
-  }
+  .chip { font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); }
   .chip.blocked { background: var(--iris-soft); color: var(--iris); }
   .chip.done { background: var(--done-soft); color: var(--done); }
-  .chip.lime { background: var(--lime); color: var(--on-lime); }
-  .owner { width: 18px; height: 18px; display: inline-block; flex: none; vertical-align: middle; }
+  .owner { width: 18px; height: 18px; flex: none; }
   .owner.user { color: var(--ink-2); }
   .owner.agent { color: var(--iris); }
-  .card .meta { display: flex; align-items: center; justify-content: space-between; }
-  .filter .owner { width: 14px; height: 14px; margin-right: 5px; color: currentColor; }
-  .modal-meta .owner-wrap { display: inline-flex; align-items: center; gap: 6px; }
   .card.is-done .title { color: var(--ink-2); }
   .card.is-done .num::after { content: " ✓"; color: var(--done); }
 
-  /* Modal */
+  /* ---------- Dialog ---------- */
   .backdrop {
-    position: fixed; inset: 0;
-    background: rgba(12, 14, 8, 0.45);
+    position: fixed; inset: 0; background: rgba(12, 14, 8, 0.45);
     display: flex; align-items: flex-start; justify-content: center;
-    padding: 6vh 16px 16px;
-    overflow-y: auto;
-    z-index: 10;
+    padding: 6vh 16px 16px; overflow-y: auto; z-index: 10;
+    animation: fade 120ms ease;
   }
   .modal {
-    width: min(760px, 100%);
-    background: var(--surface);
-    border-radius: 16px;
-    box-shadow: var(--shadow-lift);
-    display: flex; flex-direction: column;
-    max-height: 88vh;
+    width: min(760px, 100%); background: var(--surface); border-radius: 16px;
+    box-shadow: var(--shadow-lift); display: flex; flex-direction: column; max-height: 88vh;
+    animation: rise 160ms ease;
   }
-  .modal-head {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 20px 22px 12px;
-    border-bottom: 1px solid var(--line);
-  }
-  .modal-head .num {
-    font-family: var(--mono); font-size: 12px; color: var(--muted);
-    padding-top: 6px;
-  }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  .modal-head { display: flex; align-items: flex-start; gap: 12px; padding: 18px 20px 0; }
+  .modal-head .num { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 8px; }
   .modal-head .title-wrap { flex: 1; min-width: 0; }
   .modal-head input.title {
-    width: 100%;
-    border: 1px solid transparent; background: transparent;
-    font-size: 20px; font-weight: 600; line-height: 1.25;
-    padding: 4px 6px; margin-left: -6px; border-radius: 6px;
+    width: 100%; border: 1px solid transparent; background: transparent;
+    font-size: 20px; font-weight: 600; line-height: 1.25; padding: 4px 6px; margin-left: -6px; border-radius: 6px;
   }
   .modal-head input.title:hover { border-color: var(--line); }
   .modal-head input.title:focus { border-color: var(--iris); outline: none; background: var(--ground); }
-  .modal-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-top: 8px; }
-  .modal-meta label { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .modal-meta select, .modal-meta input {
-    border: 1px solid var(--line-strong); background: var(--surface);
-    border-radius: 6px; padding: 4px 8px; font-size: 13px;
+  .props {
+    display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+    margin: 10px 20px 0; padding: 10px 12px;
+    background: var(--surface-2); border-radius: 10px;
   }
-  .modal-meta input.blocked { width: 120px; }
-  .modal-body { padding: 16px 22px 22px; overflow-y: auto; }
-  .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
-  .seg button {
-    border: 0; background: transparent; padding: 5px 12px; font-size: 12.5px; color: var(--ink-2);
-  }
+  .props label { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .props .control { height: 28px; font-size: 12.5px; }
+  .props input.blocked { width: 96px; }
+  .props .chips { margin-left: auto; }
+  .modal-body { padding: 14px 20px 20px; overflow-y: auto; }
+  .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; margin-bottom: 12px; height: 28px; }
+  .seg button { border: 0; background: transparent; padding: 0 12px; font-size: 12.5px; color: var(--ink-2); }
   .seg button.on { background: var(--ink); color: var(--ground); }
   textarea.details {
-    width: 100%; min-height: 320px; resize: vertical;
-    border: 1px solid var(--line-strong); border-radius: 8px;
-    padding: 12px; font-family: var(--mono); font-size: 12.5px; line-height: 1.5;
-    background: var(--ground);
+    width: 100%; min-height: 300px; resize: vertical;
+    border: 1px solid var(--line-strong); border-radius: 8px; padding: 12px;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.5; background: var(--ground);
   }
-  .rendered { max-width: 66ch; font-size: 14px; }
-  .rendered h3 { font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; }
+  textarea.details:focus { outline: none; border-color: var(--iris); }
+  .rendered { max-width: 66ch; font-size: 14.5px; line-height: 1.55; }
+  .rendered h3 { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; }
   .rendered h3:first-child { margin-top: 0; }
   .rendered p { margin: 0 0 10px; }
   .rendered ul { margin: 0 0 10px; padding-left: 20px; }
@@ -322,36 +272,47 @@
   .rendered strong { font-weight: 600; }
   .rendered .placeholder { color: var(--muted); font-style: italic; }
   .modal-foot {
-    display: flex; align-items: center; gap: 8px;
-    padding: 12px 22px 16px;
-    border-top: 1px solid var(--line);
-    flex-wrap: wrap;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 12px 20px 14px; border-top: 1px solid var(--line);
   }
-  .modal-foot .hint { color: var(--muted); font-size: 12px; margin-left: auto; }
+  .modal-foot .right { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; }
+  .modal-foot .hint { color: var(--muted); font-size: 12px; }
 
-  /* New card form */
-  .newform { display: flex; flex-direction: column; gap: 10px; padding: 18px 22px 20px; }
-  .newform input, .newform textarea {
-    border: 1px solid var(--line-strong); border-radius: 8px; padding: 8px 10px; background: var(--ground);
+  /* ---------- New card form ---------- */
+  .newform { display: flex; flex-direction: column; gap: 14px; padding: 20px 20px 18px; }
+  .newform h2 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.2; }
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field > span { font-size: 12px; color: var(--muted); line-height: 1; }
+  .field input, .field textarea, .field .filter {
+    width: 100%; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--ground);
+    font-size: 13.5px; color: var(--ink);
   }
-  .newform textarea { min-height: 120px; font-family: var(--mono); font-size: 12.5px; resize: vertical; }
-  .newform .row { display: flex; gap: 8px; justify-content: flex-end; }
+  .field input { height: 36px; padding: 0 10px; }
+  .field input::placeholder, .field textarea::placeholder { color: var(--muted); }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--iris); box-shadow: 0 0 0 3px color-mix(in srgb, var(--iris) 22%, transparent); }
+  .field textarea { min-height: 120px; padding: 10px; font-family: var(--mono); font-size: 12.5px; line-height: 1.5; resize: vertical; }
+  .field .filter { height: 36px; display: flex; overflow: hidden; }
+  .field .filter button { flex: 1; justify-content: center; font-size: 13px; padding: 0; }
+  .field .filter .owner { width: 15px; height: 15px; }
+  .newform .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .newform .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 2px; }
+  @media (max-width: 560px) { .newform .row { grid-template-columns: 1fr; } }
 
   .toast {
     position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
-    background: var(--ink); color: var(--ground);
-    padding: 8px 14px; border-radius: 8px; font-size: 13px;
+    background: var(--ink); color: var(--ground); padding: 8px 14px; border-radius: 8px; font-size: 13px;
     box-shadow: var(--shadow-lift); z-index: 20;
   }
 
-  @media (max-width: 860px) {
-    .board { grid-template-columns: repeat(3, 280px); }
-    .topbar { padding: 16px 16px 8px; }
-    .toolbar { padding: 0 16px 8px; }
-    .board { padding: 4px 16px 20px; }
+  @media (max-width: 900px) {
+    .board { grid-template-columns: repeat(3, 280px); padding: 0 16px 20px; }
+    .topbar { padding: 16px 16px 6px; }
+    .toolbar { padding: 6px 16px 10px; }
+    .count-note { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; }
+    * { transition: none !important; animation: none !important; }
+    .card:hover { transform: none; }
   }
 </style>
 
@@ -371,21 +332,25 @@
     <span class="status" id="status"><span class="dot"></span><span id="status-text">Connecting</span></span>
     <button class="btn primary" id="add-btn">+ New card</button>
   </header>
+
   <div class="toolbar">
-    <div class="search" id="search">
-      <svg class="glass" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg>
-      <input class="control" id="search-input" type="search" placeholder="Search cards. Press / to focus" autocomplete="off" spellcheck="false" aria-label="Search cards">
-      <button class="clear" id="search-clear" type="button" aria-label="Clear search">✕</button>
-    </div>
-    <label>Owner
-    <div class="filter" id="filter" aria-label="Show cards for">
+    <div class="filter" id="filter" role="group" aria-label="Show cards for">
       <button data-owner="all" class="on">All</button>
       <button data-owner="user"><svg class="owner user" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="6.5" r="3.4"/><path d="M3.6 17.2c.7-3.5 3.3-5.4 6.4-5.4s5.7 1.9 6.4 5.4"/></svg>User</button>
       <button data-owner="agent"><svg class="owner agent" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9 2.4c.2-.6 1-.6 1.2 0l1.4 4.1c.1.3.3.5.6.6l4.1 1.4c.6.2.6 1 0 1.2l-4.1 1.4c-.3.1-.5.3-.6.6l-1.4 4.1c-.2.6-1 .6-1.2 0l-1.4-4.1c-.1-.3-.3-.5-.6-.6L2.9 9.7c-.6-.2-.6-1 0-1.2L7 7.1c.3-.1.5-.3.6-.6z"/><circle cx="15.8" cy="15.6" r="1.7"/></svg>Agent</button>
     </div>
-    </label>
     <span class="count-note" id="count-note"></span>
+    <div class="search" id="search">
+      <span class="field">
+        <input class="control" id="search-input" type="search" placeholder="Search cards" autocomplete="off" spellcheck="false" aria-label="Search cards">
+        <button class="clear" id="search-clear" type="button" aria-label="Clear search">✕</button>
+      </span>
+      <button class="btn quiet icon glass-btn" id="search-open" type="button" aria-label="Search cards" title="Search cards (/)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg>
+      </button>
+    </div>
   </div>
+
   <main class="board" id="board"></main>
 </div>
 
@@ -397,42 +362,36 @@
     { id: 'done',   name: 'Done',   rule: 'Tested, pushed, deployed' },
   ];
   const LS_KEY = 'todo-board-{{SLUG}}';
+  const ICONS = {
+    user: '<svg class="owner user" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="User task"><title>User task</title><circle cx="10" cy="6.5" r="3.4"/><path d="M3.6 17.2c.7-3.5 3.3-5.4 6.4-5.4s5.7 1.9 6.4 5.4"/></svg>',
+    agent: '<svg class="owner agent" viewBox="0 0 20 20" fill="currentColor" role="img" aria-label="Agent task"><title>Agent task</title><path d="M9 2.4c.2-.6 1-.6 1.2 0l1.4 4.1c.1.3.3.5.6.6l4.1 1.4c.6.2.6 1 0 1.2l-4.1 1.4c-.3.1-.5.3-.6.6l-1.4 4.1c-.2.6-1 .6-1.2 0l-1.4-4.1c-.1-.3-.3-.5-.6-.6L2.9 9.7c-.6-.2-.6-1 0-1.2L7 7.1c.3-.1.5-.3.6-.6z"/><circle cx="15.8" cy="15.6" r="1.7"/></svg>'
+  };
 
   let db = null;
-  let cards = {};          // id -> card
-  let openId = null;       // card open in modal
-  let detailMode = 'read'; // 'read' | 'edit'
-  let drag = null;         // { id }
-  let ownerFilter = 'all'; // 'all' | 'user' | 'agent'
-  try { ownerFilter = localStorage.getItem(LS_KEY + '-filter') || 'all'; } catch (e) {}
-  let query = '';          // search text, lowercased
+  let cards = {};
+  let openId = null;
+  let detailMode = 'read';
+  let drag = null;
   let saveTimer = null;
+  let ownerFilter = 'all';
+  let query = '';
+  let lastFocus = null;
+  try { ownerFilter = localStorage.getItem(LS_KEY + '-filter') || 'all'; } catch (e) {}
 
   const $ = (s, r = document) => r.querySelector(s);
   const boardEl = $('#board');
-  const statusEl = $('#status');
-  const statusText = $('#status-text');
 
   /* ---------- Storage ---------- */
-  function setStatus(kind, text) {
-    statusEl.className = 'status ' + kind;
-    statusText.textContent = text;
-  }
-  function loadLocal() {
-    try { const raw = localStorage.getItem(LS_KEY); if (raw) cards = JSON.parse(raw) || {}; } catch (e) {}
-  }
-  function persistLocal() {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(cards)); } catch (e) {}
-  }
+  function setStatus(kind, text) { $('#status').className = 'status ' + kind; $('#status-text').textContent = text; }
+  function loadLocal() { try { const raw = localStorage.getItem(LS_KEY); if (raw) cards = JSON.parse(raw) || {}; } catch (e) {} }
+  function persistLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(cards)); } catch (e) {} }
   async function writeCard(card) {
     cards[card.id] = card;
     render();
     if (db) {
       try { await db.doc('cards/' + card.id).set(card); }
       catch (e) { toast('Could not save. ' + (e && e.message ? e.message : '')); }
-    } else {
-      persistLocal();
-    }
+    } else persistLocal();
   }
   async function removeCard(id) {
     delete cards[id];
@@ -440,20 +399,14 @@
     if (db) {
       try { await db.doc('cards/' + id).delete(); }
       catch (e) { toast('Could not delete. ' + (e && e.message ? e.message : '')); }
-    } else {
-      persistLocal();
-    }
+    } else persistLocal();
   }
-
   async function connect() {
     loadLocal();
     render();
     let ns = null;
     try { ns = await window.claude?.use?.('db'); } catch (e) { ns = null; }
-    if (!ns) {
-      setStatus('local', 'Saved in this browser only');
-      return;
-    }
+    if (!ns) { setStatus('local', 'Saved in this browser only'); return; }
     db = ns;
     db.collection('cards').onSnapshot(snap => {
       const next = {};
@@ -462,7 +415,7 @@
       setStatus('live', snap.metadata.fromCache ? 'Syncing' : 'Synced');
       render();
       if (openId && !cards[openId]) closeModal();
-      else if (openId && detailMode === 'read') renderModal();
+      else if (openId && detailMode === 'read' && cardKey(cards[openId]) !== renderedKey) renderModal();
     }, err => {
       setStatus('local', 'Live sync stopped');
       toast('Sync stopped. ' + (err && err.message ? err.message : ''));
@@ -470,20 +423,12 @@
   }
 
   /* ---------- Helpers ---------- */
-  function nextNumber() {
-    const nums = Object.values(cards).map(c => Number(c.number) || 0);
-    return (nums.length ? Math.max(...nums) : 0) + 1;
-  }
-  function ownerOf(card) { return card.owner === 'user' ? 'user' : 'agent'; }
-  function ownerLabel(card) { return ownerOf(card) === 'user' ? 'User' : 'Agent'; }
-  const ICONS = {
-    user: '<svg class="owner user" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="User task"><title>User task</title><circle cx="10" cy="6.5" r="3.4"/><path d="M3.6 17.2c.7-3.5 3.3-5.4 6.4-5.4s5.7 1.9 6.4 5.4"/></svg>',
-    agent: '<svg class="owner agent" viewBox="0 0 20 20" fill="currentColor" role="img" aria-label="Agent task"><title>Agent task</title><path d="M9 2.4c.2-.6 1-.6 1.2 0l1.4 4.1c.1.3.3.5.6.6l4.1 1.4c.6.2.6 1 0 1.2l-4.1 1.4c-.3.1-.5.3-.6.6l-1.4 4.1c-.2.6-1 .6-1.2 0l-1.4-4.1c-.1-.3-.3-.5-.6-.6L2.9 9.7c-.6-.2-.6-1 0-1.2L7 7.1c.3-.1.5-.3.6-.6z"/><circle cx="15.8" cy="15.6" r="1.7"/></svg>'
-  };
-  function ownerIcon(card) { return ICONS[ownerOf(card)]; }
-  function matches(card) {
+  function nextNumber() { const n = Object.values(cards).map(c => Number(c.number) || 0); return (n.length ? Math.max(...n) : 0) + 1; }
+  function ownerOf(c) { return c.owner === 'user' ? 'user' : 'agent'; }
+  function ownerIcon(c) { return ICONS[ownerOf(c)]; }
+  function matches(c) {
     if (!query) return true;
-    const hay = ('#' + (card.number ?? '') + ' ' + (card.title || '') + ' ' + (card.summary || '') + ' ' + (card.details || '')).toLowerCase();
+    const hay = ('#' + (c.number ?? '') + ' ' + (c.title || '') + ' ' + (c.summary || '') + ' ' + (c.details || '')).toLowerCase();
     return query.split(/\s+/).filter(Boolean).every(w => hay.includes(w));
   }
   function inColumn(col, visibleOnly) {
@@ -493,17 +438,10 @@
       .filter(c => !visibleOnly || matches(c))
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || (a.number ?? 0) - (b.number ?? 0));
   }
-  function esc(s) {
-    return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-  }
-  function inline(s) {
-    return esc(s)
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  }
-  // Tiny markdown: ## heading, - bullets, blank line paragraphs, **bold**, `code`
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch])); }
+  function inline(s) { return esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); }
   function md(text) {
-    if (!text || !text.trim()) return '<p class="placeholder">No details yet. Click Edit to add some.</p>';
+    if (!text || !text.trim()) return '<p class="placeholder">No details yet. Switch to Edit to add some.</p>';
     const lines = text.replace(/\r/g, '').split('\n');
     let out = '', para = [], list = [];
     const flushP = () => { if (para.length) { out += '<p>' + inline(para.join(' ')) + '</p>'; para = []; } };
@@ -519,21 +457,30 @@
     return out;
   }
   function blockedChips(card) {
-    const ids = (card.blockedBy || '').split(',').map(s => s.trim()).filter(Boolean);
-    return ids.map(n => {
+    return (card.blockedBy || '').split(',').map(s => s.trim()).filter(Boolean).map(n => {
       const dep = Object.values(cards).find(c => String(c.number) === n);
       const resolved = dep && dep.column === 'done';
-      return '<span class="chip ' + (resolved ? 'done' : 'blocked') + '">' + (resolved ? 'Unblocked by' : 'Blocked by') + ' #' + esc(n) + '</span>';
+      return '<span class="chip ' + (resolved ? 'done' : 'blocked') + '" title="' + esc(dep ? dep.title : 'Card #' + n) + '">' + (resolved ? 'Unblocked by' : 'Blocked by') + ' #' + esc(n) + '</span>';
     }).join('');
   }
+  function timeAgo(iso) {
+    if (!iso) return '';
+    const s = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (isNaN(s)) return '';
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.floor(s / 60) + 'm ago';
+    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+    if (s < 86400 * 14) return Math.floor(s / 86400) + 'd ago';
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+  function now() { return new Date().toISOString(); }
+  function cardKey(card) { return card ? JSON.stringify(card) + '|' + detailMode : ''; }
   function toast(msg) {
-    const t = document.createElement('div');
-    t.className = 'toast'; t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2600);
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
   }
 
-  /* ---------- Render board ---------- */
+  /* ---------- Board ---------- */
   function render() {
     boardEl.innerHTML = '';
     for (const col of COLUMNS) {
@@ -545,7 +492,12 @@
         '<div class="cards" data-col="' + col.id + '"></div>';
       const cardsEl = colEl.querySelector('.cards');
       if (!list.length) {
-        cardsEl.innerHTML = '<div class="empty">' + (query ? 'No matches' : ownerFilter === 'all' ? 'Nothing here' : 'No ' + ownerFilter + ' cards here') + '</div>';
+        const e = document.createElement('div'); e.className = 'empty';
+        if (query) e.textContent = 'No matches';
+        else if (ownerFilter !== 'all') e.textContent = 'No ' + ownerFilter + ' cards here';
+        else if (col.id === 'todo') { e.innerHTML = '<span>Nothing to do yet</span><button class="btn" type="button">+ Add a card</button>'; e.querySelector('button').addEventListener('click', openNewForm); }
+        else e.textContent = col.id === 'review' ? 'Nothing waiting for review' : 'Nothing finished yet';
+        cardsEl.appendChild(e);
       }
       for (const card of list) cardsEl.appendChild(cardEl(card));
       wireDrop(colEl, cardsEl);
@@ -553,53 +505,58 @@
     }
     const total = Object.keys(cards).length;
     const shown = COLUMNS.reduce((n, c) => n + inColumn(c.id, true).length, 0);
-    const note = $('#count-note');
-    note.textContent = (query || ownerFilter !== 'all') ? shown + ' of ' + total + ' cards' : total + ' card' + (total === 1 ? '' : 's');
+    $('#count-note').textContent = (query || ownerFilter !== 'all') ? shown + ' of ' + total + ' cards' : total + ' card' + (total === 1 ? '' : 's');
   }
   function cardEl(card) {
     const el = document.createElement('article');
     el.className = 'card' + (card.column === 'done' ? ' is-done' : '');
-    el.draggable = true; el.tabIndex = 0;
-    el.dataset.id = card.id;
+    el.draggable = true; el.tabIndex = 0; el.dataset.id = card.id;
+    el.setAttribute('aria-label', 'Card ' + card.number + ', ' + card.title);
+    const chips = blockedChips(card);
     el.innerHTML =
       '<div class="meta"><span class="num">#' + esc(card.number) + '</span>' + ownerIcon(card) + '</div>' +
       '<div class="title">' + esc(card.title) + '</div>' +
       (card.summary ? '<div class="summary">' + esc(card.summary) + '</div>' : '') +
-      (card.blockedBy ? '<div class="chips">' + blockedChips(card) + '</div>' : '');
-    el.addEventListener('click', () => openModal(card.id));
-    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.id); } });
+      '<div class="foot">' + (chips ? '<div class="chips">' + chips + '</div>' : '') + '<span class="when">' + esc(timeAgo(card.updatedAt)) + '</span></div>';
+    el.addEventListener('click', () => openModal(card.id, el));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.id, el); } });
     el.addEventListener('dragstart', e => {
-      drag = { id: card.id };
-      el.classList.add('dragging');
+      drag = { id: card.id }; el.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
       try { e.dataTransfer.setData('text/plain', card.id); } catch (_) {}
     });
-    el.addEventListener('dragend', () => { drag = null; el.classList.remove('dragging'); document.querySelectorAll('.column.over').forEach(c => c.classList.remove('over')); });
+    el.addEventListener('dragend', () => { drag = null; el.classList.remove('dragging'); clearDropMarks(); });
     return el;
+  }
+  function clearDropMarks() {
+    document.querySelectorAll('.column.over').forEach(c => c.classList.remove('over'));
+    document.querySelectorAll('.drop-line').forEach(l => l.remove());
+  }
+  function dropIndex(cardsEl, y) {
+    const siblings = Array.from(cardsEl.querySelectorAll('.card')).filter(c => c.dataset.id !== drag.id);
+    for (let i = 0; i < siblings.length; i++) {
+      const r = siblings[i].getBoundingClientRect();
+      if (y < r.top + r.height / 2) return { index: i, before: siblings[i] };
+    }
+    return { index: siblings.length, before: null };
   }
   function wireDrop(colEl, cardsEl) {
     colEl.addEventListener('dragover', e => {
       if (!drag) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      colEl.classList.add('over');
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      if (!colEl.classList.contains('over')) { clearDropMarks(); colEl.classList.add('over'); }
+      const { before } = dropIndex(cardsEl, e.clientY);
+      let line = cardsEl.querySelector('.drop-line');
+      if (!line) { line = document.createElement('div'); line.className = 'drop-line'; }
+      if (before) cardsEl.insertBefore(line, before); else cardsEl.appendChild(line);
     });
-    colEl.addEventListener('dragleave', e => {
-      if (!colEl.contains(e.relatedTarget)) colEl.classList.remove('over');
-    });
+    colEl.addEventListener('dragleave', e => { if (!colEl.contains(e.relatedTarget)) { colEl.classList.remove('over'); cardsEl.querySelectorAll('.drop-line').forEach(l => l.remove()); } });
     colEl.addEventListener('drop', e => {
       if (!drag) return;
       e.preventDefault();
-      colEl.classList.remove('over');
-      const col = colEl.dataset.col;
-      // Find insertion index by pointer position among cards in this column (excluding the dragged one)
-      const siblings = Array.from(cardsEl.querySelectorAll('.card')).filter(c => c.dataset.id !== drag.id);
-      let index = siblings.length;
-      for (let i = 0; i < siblings.length; i++) {
-        const r = siblings[i].getBoundingClientRect();
-        if (e.clientY < r.top + r.height / 2) { index = i; break; }
-      }
-      moveCard(drag.id, col, index);
+      const { index } = dropIndex(cardsEl, e.clientY);
+      clearDropMarks();
+      moveCard(drag.id, colEl.dataset.col, index);
     });
   }
   function moveCard(id, col, index) {
@@ -607,152 +564,168 @@
     const list = inColumn(col).filter(c => c.id !== id);
     if (index == null) index = list.length;
     list.splice(index, 0, card);
-    const updates = [];
     list.forEach((c, i) => {
       const order = (i + 1) * 10;
-      if (c.id === id) { updates.push(Object.assign({}, c, { column: col, order, updatedAt: new Date().toISOString() })); }
-      else if (c.order !== order) { updates.push(Object.assign({}, c, { order })); }
+      if (c.id === id) writeCard(Object.assign({}, c, { column: col, order, updatedAt: now() }));
+      else if (c.order !== order) writeCard(Object.assign({}, c, { order }));
     });
-    updates.forEach(u => writeCard(u));
   }
 
-  /* ---------- Modal ---------- */
+  /* ---------- Dialog plumbing ---------- */
   let modalRoot = null;
-  function openModal(id) {
-    openId = id; detailMode = 'read';
-    renderModal();
+  let renderedKey = '';
+  function mountModal(html, label) {
+    if (modalRoot) {
+      // Already open: swap the contents so the backdrop and dialog keep their place and no entrance animation replays.
+      const modal = modalRoot.firstElementChild;
+      const scrollTop = modal.querySelector('.modal-body')?.scrollTop || 0;
+      modal.setAttribute('aria-label', label);
+      modal.innerHTML = html;
+      const body = modal.querySelector('.modal-body'); if (body) body.scrollTop = scrollTop;
+      return modal;
+    }
+    modalRoot = document.createElement('div');
+    modalRoot.className = 'backdrop';
+    modalRoot.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-label="' + esc(label) + '">' + html + '</div>';
+    modalRoot.addEventListener('mousedown', e => { if (e.target === modalRoot) closeModal(); });
+    document.body.appendChild(modalRoot);
+    document.addEventListener('keydown', onModalKey);
+    return modalRoot.firstElementChild;
   }
   function closeModal() {
-    openId = null;
+    commitDetails();
+    openId = null; renderedKey = '';
     if (modalRoot) { modalRoot.remove(); modalRoot = null; }
-    document.removeEventListener('keydown', onEsc);
+    document.removeEventListener('keydown', onModalKey);
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+    lastFocus = null;
   }
-  function onEsc(e) { if (e.key === 'Escape') closeModal(); }
-  function renderModal() {
-    const card = cards[openId]; if (!card) return closeModal();
-    if (!modalRoot) {
-      modalRoot = document.createElement('div');
-      modalRoot.className = 'backdrop';
-      modalRoot.addEventListener('mousedown', e => { if (e.target === modalRoot) closeModal(); });
-      document.body.appendChild(modalRoot);
-      document.addEventListener('keydown', onEsc);
+  function onModalKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+    if (e.key === 'Tab' && modalRoot) {
+      const f = Array.from(modalRoot.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(x => !x.disabled);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
-    const colOptions = COLUMNS.map(c => '<option value="' + c.id + '"' + (c.id === card.column ? ' selected' : '') + '>' + c.name + '</option>').join('');
-    modalRoot.innerHTML =
-      '<div class="modal" role="dialog" aria-modal="true" aria-label="Card #' + esc(card.number) + '">' +
-        '<div class="modal-head">' +
-          '<span class="num">#' + esc(card.number) + '</span>' +
-          '<div class="title-wrap">' +
-            '<input class="title" id="m-title" value="' + esc(card.title) + '" aria-label="Title">' +
-            '<div class="modal-meta">' +
-              '<label>Column <select id="m-col">' + colOptions + '</select></label>' +
-              '<label class="owner-wrap">' + ownerIcon(card) + ' Owner <select id="m-owner"><option value="agent"' + (ownerOf(card) === 'agent' ? ' selected' : '') + '>Agent</option><option value="user"' + (ownerOf(card) === 'user' ? ' selected' : '') + '>User</option></select></label>' +
-              '<label>Blocked by <input class="blocked" id="m-blocked" placeholder="e.g. 1, 4" value="' + esc(card.blockedBy || '') + '"></label>' +
-              '<span class="chips">' + blockedChips(card) + '</span>' +
-            '</div>' +
-          '</div>' +
-          '<button class="btn quiet" id="m-close" aria-label="Close">✕</button>' +
-        '</div>' +
-        '<div class="modal-body">' +
-          '<div class="seg"><button id="m-read" class="' + (detailMode === 'read' ? 'on' : '') + '">Read</button><button id="m-edit" class="' + (detailMode === 'edit' ? 'on' : '') + '">Edit</button></div>' +
-          (detailMode === 'read'
-            ? '<div class="rendered">' + md(card.details) + '</div>'
-            : '<textarea class="details" id="m-details" spellcheck="false">' + esc(card.details || '') + '</textarea>') +
-        '</div>' +
-        '<div class="modal-foot">' +
-          '<button class="btn" id="m-move-left" title="Move one column left">← Back</button>' +
-          '<button class="btn" id="m-move-right" title="Move one column right">Advance →</button>' +
-          '<button class="btn danger quiet" id="m-delete">Delete</button>' +
-          '<span class="hint">' + (card.updatedAt ? 'Updated ' + new Date(card.updatedAt).toLocaleString() : '') + '</span>' +
-        '</div>' +
-      '</div>';
+  }
 
+  /* ---------- Card view ---------- */
+  function openModal(id, fromEl) {
+    lastFocus = fromEl || document.activeElement;
+    openId = id; detailMode = 'read';
+    renderModal(true);
+  }
+  function renderModal(initial) {
+    const card = cards[openId]; if (!card) return closeModal();
     const colIdx = COLUMNS.findIndex(c => c.id === card.column);
-    $('#m-move-left', modalRoot).disabled = colIdx <= 0;
-    $('#m-move-right', modalRoot).disabled = colIdx >= COLUMNS.length - 1;
+    const colOptions = COLUMNS.map(c => '<option value="' + c.id + '"' + (c.id === card.column ? ' selected' : '') + '>' + c.name + '</option>').join('');
+    const prev = COLUMNS[colIdx - 1], next = COLUMNS[colIdx + 1];
+    const chips = blockedChips(card);
+    const html =
+      '<div class="modal-head">' +
+        '<span class="num">#' + esc(card.number) + '</span>' +
+        '<div class="title-wrap"><input class="title" id="m-title" value="' + esc(card.title) + '" aria-label="Title"></div>' +
+        '<button class="btn quiet icon" id="m-close" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg></button>' +
+      '</div>' +
+      '<div class="props">' +
+        '<label>Column <select class="control" id="m-col">' + colOptions + '</select></label>' +
+        '<label>' + ownerIcon(card) + 'Owner <select class="control" id="m-owner"><option value="agent"' + (ownerOf(card) === 'agent' ? ' selected' : '') + '>Agent</option><option value="user"' + (ownerOf(card) === 'user' ? ' selected' : '') + '>User</option></select></label>' +
+        '<label>Blocked by <input class="control blocked" id="m-blocked" placeholder="e.g. 1, 4" value="' + esc(card.blockedBy || '') + '"></label>' +
+        (chips ? '<span class="chips">' + chips + '</span>' : '') +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<div class="seg" role="group" aria-label="Details mode"><button id="m-read" class="' + (detailMode === 'read' ? 'on' : '') + '">Read</button><button id="m-edit" class="' + (detailMode === 'edit' ? 'on' : '') + '">Edit</button></div>' +
+        (detailMode === 'read'
+          ? '<div class="rendered">' + md(card.details) + '</div>'
+          : '<textarea class="details" id="m-details" spellcheck="false" aria-label="Details">' + esc(card.details || '') + '</textarea>') +
+      '</div>' +
+      '<div class="modal-foot">' +
+        '<button class="btn" id="m-back"' + (prev ? '' : ' disabled') + '>← ' + (prev ? 'Back to ' + prev.name : 'Back') + '</button>' +
+        '<button class="btn" id="m-forward"' + (next ? '' : ' disabled') + '>' + (next ? 'Move to ' + next.name : 'Done') + ' →</button>' +
+        '<span class="right"><span class="hint" id="m-hint">' + (card.updatedAt ? 'Updated ' + esc(timeAgo(card.updatedAt)) : '') + '</span>' +
+        '<button class="btn quiet danger" id="m-delete">Delete</button></span>' +
+      '</div>';
+    const modal = mountModal(html, 'Card #' + card.number);
+    renderedKey = cardKey(card);
 
-    $('#m-close', modalRoot).addEventListener('click', closeModal);
-    $('#m-read', modalRoot).addEventListener('click', () => { commitDetails(); detailMode = 'read'; renderModal(); });
-    $('#m-edit', modalRoot).addEventListener('click', () => { detailMode = 'edit'; renderModal(); $('#m-details', modalRoot).focus(); });
-    $('#m-move-left', modalRoot).addEventListener('click', () => { moveCard(card.id, COLUMNS[colIdx - 1].id); renderModal(); });
-    $('#m-move-right', modalRoot).addEventListener('click', () => { moveCard(card.id, COLUMNS[colIdx + 1].id); renderModal(); });
-    $('#m-delete', modalRoot).addEventListener('click', () => {
+    $('#m-close', modal).addEventListener('click', closeModal);
+    $('#m-read', modal).addEventListener('click', () => { commitDetails(); detailMode = 'read'; renderModal(); $('#m-read', modalRoot).focus(); });
+    $('#m-edit', modal).addEventListener('click', () => { detailMode = 'edit'; renderModal(); $('#m-details', modalRoot).focus(); });
+    if (prev) $('#m-back', modal).addEventListener('click', () => { moveCard(card.id, prev.id); renderModal(); $('#m-back', modalRoot).focus(); });
+    if (next) $('#m-forward', modal).addEventListener('click', () => { moveCard(card.id, next.id); renderModal(); $('#m-forward', modalRoot).focus(); });
+    $('#m-delete', modal).addEventListener('click', () => {
       if (confirm('Delete card #' + card.number + ' "' + card.title + '"? This cannot be undone.')) { removeCard(card.id); closeModal(); }
     });
-    $('#m-col', modalRoot).addEventListener('change', e => { moveCard(card.id, e.target.value); renderModal(); });
-    $('#m-owner', modalRoot).addEventListener('change', e => {
-      writeCard(Object.assign({}, cards[card.id], { owner: e.target.value, updatedAt: new Date().toISOString() }));
-      renderModal();
-    });
-    $('#m-title', modalRoot).addEventListener('change', e => {
+    $('#m-col', modal).addEventListener('change', e => { moveCard(card.id, e.target.value); renderModal(); $('#m-col', modalRoot).focus(); });
+    $('#m-owner', modal).addEventListener('change', e => { writeCard(Object.assign({}, cards[card.id], { owner: e.target.value, updatedAt: now() })); renderModal(); $('#m-owner', modalRoot).focus(); });
+    $('#m-title', modal).addEventListener('change', e => {
       const v = e.target.value.trim(); if (!v) { e.target.value = card.title; return; }
-      writeCard(Object.assign({}, cards[card.id], { title: v, updatedAt: new Date().toISOString() }));
+      writeCard(Object.assign({}, cards[card.id], { title: v, updatedAt: now() }));
     });
-    $('#m-blocked', modalRoot).addEventListener('change', e => {
-      writeCard(Object.assign({}, cards[card.id], { blockedBy: e.target.value.trim(), updatedAt: new Date().toISOString() }));
-      renderModal();
-    });
-    const ta = $('#m-details', modalRoot);
-    if (ta) ta.addEventListener('input', () => { clearTimeout(saveTimer); saveTimer = setTimeout(commitDetails, 700); });
+    $('#m-blocked', modal).addEventListener('change', e => { writeCard(Object.assign({}, cards[card.id], { blockedBy: e.target.value.trim(), updatedAt: now() })); renderModal(); $('#m-blocked', modalRoot).focus(); });
+    const ta = $('#m-details', modal);
+    if (ta) ta.addEventListener('input', () => { $('#m-hint', modalRoot).textContent = 'Editing'; clearTimeout(saveTimer); saveTimer = setTimeout(commitDetails, 700); });
+    if (initial) $('#m-close', modal).focus();
   }
   function commitDetails() {
     clearTimeout(saveTimer);
     const ta = modalRoot && $('#m-details', modalRoot);
     if (!ta || !openId || !cards[openId]) return;
     const v = ta.value;
-    if (v === (cards[openId].details || '')) return;
-    writeCard(Object.assign({}, cards[openId], { details: v, updatedAt: new Date().toISOString() }));
+    const h = $('#m-hint', modalRoot);
+    if (v === (cards[openId].details || '')) { if (h) h.textContent = 'Saved'; return; }
+    writeCard(Object.assign({}, cards[openId], { details: v, updatedAt: now() }));
+    if (h) h.textContent = 'Saved';
   }
 
   /* ---------- New card ---------- */
-  $('#add-btn').addEventListener('click', () => {
-    if (modalRoot) closeModal();
-    modalRoot = document.createElement('div');
-    modalRoot.className = 'backdrop';
-    modalRoot.addEventListener('mousedown', e => { if (e.target === modalRoot) closeModal(); });
-    modalRoot.innerHTML =
-      '<div class="modal" role="dialog" aria-modal="true" aria-label="New card">' +
-        '<form class="newform" id="newform">' +
-          '<input id="n-title" placeholder="Title" required autocomplete="off">' +
-          '<input id="n-summary" placeholder="One line summary (optional)" autocomplete="off">' +
-          '<input id="n-blocked" placeholder="Blocked by card numbers, e.g. 1 (optional)" autocomplete="off">' +
-          '<label style="font-size:12px;color:var(--muted)">Owner <select id="n-owner" style="margin-left:6px"><option value="agent">Agent</option><option value="user">User</option></select></label>' +
-          '<textarea id="n-details" placeholder="Details. Use ## for headings, - for bullets, **bold**, `code`."></textarea>' +
-          '<div class="row"><button type="button" class="btn quiet" id="n-cancel">Cancel</button><button type="submit" class="btn primary">Add to Todo</button></div>' +
-        '</form>' +
-      '</div>';
-    document.body.appendChild(modalRoot);
-    document.addEventListener('keydown', onEsc);
-    $('#n-cancel', modalRoot).addEventListener('click', closeModal);
-    $('#newform', modalRoot).addEventListener('submit', e => {
+  function openNewForm() {
+    lastFocus = document.activeElement;
+    openId = null;
+    const modal = mountModal(
+      '<form class="newform" id="newform">' +
+        '<h2>New card</h2>' +
+        '<label class="field"><span>Title</span><input id="n-title" required autocomplete="off" placeholder="Short and imperative. Export a note as PDF"></label>' +
+        '<label class="field"><span>Summary</span><input id="n-summary" autocomplete="off" placeholder="One line shown on the card"></label>' +
+        '<div class="row">' +
+          '<div class="field"><span>Owner</span><div class="filter" id="n-owner" role="group" aria-label="Owner"><button type="button" data-owner="agent" class="on">' + ICONS.agent + 'Agent</button><button type="button" data-owner="user">' + ICONS.user + 'User</button></div></div>' +
+          '<label class="field"><span>Blocked by</span><input id="n-blocked" autocomplete="off" placeholder="Card numbers, e.g. 1, 4"></label>' +
+        '</div>' +
+        '<label class="field"><span>Details</span><textarea id="n-details" placeholder="## Heading, - bullets, **bold**, `code`"></textarea></label>' +
+        '<div class="actions"><button type="button" class="btn quiet" id="n-cancel">Cancel</button><button type="submit" class="btn primary">Add to Todo</button></div>' +
+      '</form>', 'New card');
+    let owner = 'agent';
+    $('#n-owner', modal).addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      owner = b.dataset.owner;
+      modal.querySelectorAll('#n-owner button').forEach(x => x.classList.toggle('on', x === b));
+    });
+    $('#n-cancel', modal).addEventListener('click', closeModal);
+    $('#newform', modal).addEventListener('submit', e => {
       e.preventDefault();
+      const title = $('#n-title', modal).value.trim(); if (!title) return;
       const number = nextNumber();
       const todo = inColumn('todo');
       const card = {
-        id: String(number),
-        number,
-        title: $('#n-title', modalRoot).value.trim(),
-        summary: $('#n-summary', modalRoot).value.trim(),
-        blockedBy: $('#n-blocked', modalRoot).value.trim(),
-        owner: $('#n-owner', modalRoot).value,
-        details: $('#n-details', modalRoot).value,
+        id: String(number), number, title,
+        summary: $('#n-summary', modal).value.trim(),
+        blockedBy: $('#n-blocked', modal).value.trim(),
+        owner,
+        details: $('#n-details', modal).value,
         column: 'todo',
-        order: (todo.length + 1) * 10,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        order: (todo.length ? Math.max(...todo.map(c => c.order || 0)) : 0) + 10,
+        createdAt: now(), updatedAt: now(),
       };
-      if (!card.title) return;
-      writeCard(card);
-      closeModal();
-      toast('Added #' + number);
+      writeCard(card); closeModal(); toast('Added #' + number);
     });
-    setTimeout(() => $('#n-title', modalRoot).focus(), 0);
-  });
+    setTimeout(() => $('#n-title', modal).focus(), 0);
+  }
+  $('#add-btn').addEventListener('click', openNewForm);
 
   /* ---------- Owner filter ---------- */
-  function syncFilter() {
-    document.querySelectorAll('#filter button').forEach(b => b.classList.toggle('on', b.dataset.owner === ownerFilter));
-  }
+  function syncFilter() { document.querySelectorAll('#filter button').forEach(b => b.classList.toggle('on', b.dataset.owner === ownerFilter)); }
   $('#filter').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     ownerFilter = b.dataset.owner;
@@ -763,19 +736,22 @@
 
   /* ---------- Search ---------- */
   const searchWrap = $('#search'), searchInput = $('#search-input');
-  function setQuery(v) {
-    query = (v || '').trim().toLowerCase();
-    searchWrap.classList.toggle('has-query', !!query);
-    render();
-  }
+  function setQuery(v) { query = (v || '').trim().toLowerCase(); render(); }
+  function openSearch() { searchWrap.classList.add('open'); searchInput.focus(); searchInput.select(); }
+  function closeSearch() { searchWrap.classList.remove('open'); }
+  $('#search-open').addEventListener('click', () => {
+    if (searchWrap.classList.contains('open')) { searchInput.value = ''; setQuery(''); closeSearch(); }
+    else openSearch();
+  });
   searchInput.addEventListener('input', () => setQuery(searchInput.value));
-  searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') { searchInput.value = ''; setQuery(''); searchInput.blur(); } });
+  searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') { searchInput.value = ''; setQuery(''); closeSearch(); $('#search-open').focus(); } });
+  searchInput.addEventListener('blur', () => { if (!searchInput.value.trim()) closeSearch(); });
   $('#search-clear').addEventListener('click', () => { searchInput.value = ''; setQuery(''); searchInput.focus(); });
   document.addEventListener('keydown', e => {
     if (e.key !== '/' || modalRoot) return;
     const t = e.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
-    e.preventDefault(); searchInput.focus(); searchInput.select();
+    e.preventDefault(); openSearch();
   });
 
   connect();
