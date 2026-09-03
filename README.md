@@ -1,5 +1,8 @@
 # krrish-skills
 
+[![validate](https://github.com/nkrrish/krrish-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/nkrrish/krrish-skills/actions/workflows/validate.yml)
+[![licence: GPL-3.0](https://img.shields.io/badge/licence-GPL--3.0-blue.svg)](LICENSE)
+
 Skills for [Claude Code](https://claude.com/claude-code) that verify their own output.
 
 Most skills tell a model what to do and hope. These ship the tooling to check whether it
@@ -75,6 +78,23 @@ had missed:
   distinct regions at both sizes.
 
 None were visible in the SVG source. All were obvious in the pixels.
+
+## Tests
+
+```bash
+bash tests/run.sh
+```
+
+CI runs the same suite on every push. It is a regression suite, not a lint — it asserts the
+audit **catches** three known-bad marks (a baked background plate, hairline strokes, interior
+counters that close at 16px) and **passes** three good ones. Loosen a threshold and the bad
+fixtures start passing, and CI goes red.
+
+Bad fixtures must exit exactly 1. An audit that cannot run exits 3, and the runner treats that
+as a failure rather than a detection — otherwise a missing dependency produces a green suite
+that measured nothing.
+
+Requires `librsvg2-bin` and ImageMagick (either version 6 or 7).
 
 ## Licence
 
