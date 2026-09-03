@@ -1,0 +1,52 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"        # Monday — catches corpus drift in the README claim
+  workflow_dispatch:
+
+jobs:
+  structure:
+    name: manifests and skill frontmatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tests/validate_manifests.py
+
+  audit:
+    name: audit catches known-bad marks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install renderers
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq librsvg2-bin imagemagick
+      - name: allow ImageMagick to read SVG
+        run: |
+          # Ubuntu's policy.xml disables SVG by default; the audit only rasterises
+          # local fixture files, never remote or untrusted input.
+          P=$(ls /etc/ImageMagick-*/policy.xml 2>/dev/null | head -1) || true
+          if [ -n "${P:-}" ]; then sudo sed -i 's/rights="none" pattern="SVG"/rights="read|write" pattern="SVG"/' "$P"; fi
+      - run: bash tests/run.sh
+
+  corpus-claim:
+    name: README brand-corpus count is still accurate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: compare README claim against live simple-icons
+        run: |
+          set -euo pipefail
+          npm pack simple-icons@latest >/dev/null 2>&1
+          actual=$(tar tzf simple-icons-*.tgz | grep -c '\.svg$')
+          claimed=$(grep -oE '~?[0-9],?[0-9]{3}\+? (real )?brand marks' README.md | head -1 | grep -oE '[0-9,]+' | tr -d ',')
+          echo "README claims: ${claimed:-none}   actual: $actual"
+          if [ -z "${claimed:-}" ]; then echo "::error::no brand-mark count found in README"; exit 1; fi
+          drift=$(( actual > claimed ? actual - claimed : claimed - actual ))
+          if [ "$drift" -gt 200 ]; then
+            echo "::error::README says $claimed brand marks, simple-icons now ships $actual — update the README"
+            exit 1
+          fi
+          echo "within tolerance (drift $drift)"

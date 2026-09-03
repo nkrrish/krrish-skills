@@ -58,8 +58,8 @@ for f in "${FILES[@]}"; do
   nodes="$(grep -o '[MLCQAHVSTZmlcqahvstz]' "$f" 2>/dev/null | wc -l | tr -d ' ')"
 
   v="ok"
-  lt "$tpl" 0.001                     && { v="FAIL blank";            FAIL=1; }
-  [[ $v == ok ]] && gt "$ink" 0.85    && { v="FAIL plate baked in";   FAIL=1; }
+  gt "$ink" 0.85                      && { v="FAIL plate baked in";   FAIL=1; }
+  [[ $v == ok ]] && lt "$tpl" 0.001   && { v="FAIL blank";            FAIL=1; }
   [[ $v == ok ]] && [[ "$r16" -lt "$r256" ]] && { v="FAIL counters close at 16px"; FAIL=1; }
   [[ $v == ok ]] && lt "$thin" 0.65   && { v="FAIL too thin for 16px"; FAIL=1; }
   [[ $v == ok ]] && lt "$thin" 0.95   && v="warn thin"
