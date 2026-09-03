@@ -7,6 +7,12 @@ set -euo pipefail
 # available. Aspect ratio is preserved: sizes are target WIDTHS, so a square
 # icon exports square and a 2:1 wordmark exports 2:1.
 
+# ImageMagick 7 ships one `magick`; 6 (Debian/Ubuntu) ships convert/identify.
+if   command -v magick  &>/dev/null; then IM="magick"; IDENT="magick identify"
+elif command -v convert &>/dev/null; then IM="convert"; IDENT="identify"
+else IM=""; IDENT=""; fi
+have_im() { [[ -n "$IM" ]]; }
+
 INPUT_SVG="${1:?Usage: export.sh <input.svg> <output-dir> [icon.svg]}"
 OUTPUT_DIR="${2:?Usage: export.sh <input.svg> <output-dir> [icon.svg]}"
 ICON_SVG="${3:-}"
@@ -34,7 +40,7 @@ elif command -v inkscape &>/dev/null; then
   TOOL="inkscape"
 elif command -v node &>/dev/null && node -e "require('sharp')" &>/dev/null; then
   TOOL="sharp"
-elif command -v magick &>/dev/null; then
+elif have_im; then
   TOOL="magick"
 elif command -v convert &>/dev/null; then
   TOOL="convert"
@@ -58,7 +64,7 @@ echo "Using: $TOOL"
 BLANK_OUTPUTS=0
 
 if [[ "$TOOL" == "magick" || "$TOOL" == "convert" ]] \
-   && ! magick -list configure 2>/dev/null | grep -q rsvg; then
+   && ! $IM -list configure 2>/dev/null | grep -q rsvg; then
   cat >&2 <<'WARN'
 WARNING: ImageMagick is built without the rsvg delegate, so it falls back to its
 internal SVG renderer. That renderer silently drops gradients, masks, clip-paths
@@ -76,8 +82,8 @@ echo ""
 # large exports are rendered rather than upscaled.
 intrinsic_width() {
   local src="$1" w=""
-  if command -v magick &>/dev/null; then
-    w="$(magick identify -format "%w" "$src" 2>/dev/null | head -1 || true)"
+  if have_im; then
+    w="$($IDENT -format "%w" "$src" 2>/dev/null | head -1 || true)"
   fi
   [[ "$w" =~ ^[0-9]+$ ]] && [[ "$w" -gt 0 ]] && echo "$w" || echo 100
 }
@@ -111,7 +117,7 @@ NODE
       local iw density
       iw="$(intrinsic_width "$src")"
       density="$(awk -v s="$size" -v w="$iw" 'BEGIN{d=96*s/w; if(d<96)d=96; if(d>6000)d=6000; printf "%d", d}')"
-      "$TOOL" -background none -density "$density" "$src" -resize "${size}x" "$out"
+      $IM -background none -density "$density" "$src" -resize "${size}x" "$out"
       ;;
     cairosvg)
       python3 -c "import cairosvg,sys; cairosvg.svg2png(url=sys.argv[1], write_to=sys.argv[2], output_width=int(sys.argv[3]))" \
@@ -120,12 +126,12 @@ NODE
   esac
 
   local dims="" sd=""
-  if command -v magick &>/dev/null; then
-    dims=" ($(magick identify -format '%wx%h' "$out" 2>/dev/null))"
+  if have_im; then
+    dims=" ($($IDENT -format '%wx%h' "$out" 2>/dev/null))"
     # A uniform image means the renderer silently dropped the artwork.
     # ImageMagick's internal MSVG renderer does this with gradients, masks
     # and clip-paths: exit 0, blank PNG.
-    sd="$(magick identify -format '%[fx:standard_deviation]' "$out" 2>/dev/null || echo 1)"
+    sd="$($IDENT -format '%[fx:standard_deviation]' "$out" 2>/dev/null || echo 1)"
     if [[ "$sd" == "0" ]]; then
       BLANK_OUTPUTS=$((BLANK_OUTPUTS + 1))
       echo "  ${base}-${size}.png${dims}  <-- BLANK"

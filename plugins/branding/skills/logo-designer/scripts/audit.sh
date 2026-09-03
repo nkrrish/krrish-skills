@@ -16,16 +16,21 @@ set -uo pipefail
 # Exit 1 on any FAIL.
 
 T="${1:?Usage: audit.sh <dir|file.svg>}"
-command -v magick &>/dev/null || { echo "needs ImageMagick" >&2; exit 3; }
+# ImageMagick 7 ships one `magick` binary; 6 (Debian/Ubuntu) ships separate
+# convert / identify / compare. Support both.
+if   command -v magick  &>/dev/null; then IM="magick"; IDENT="magick identify"; CMP="magick compare"
+elif command -v convert &>/dev/null && command -v identify &>/dev/null; then
+  IM="convert"; IDENT="identify"; CMP="compare"
+else echo "needs ImageMagick (v6 or v7)" >&2; exit 3; fi
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 render() {
   if   command -v rsvg-convert &>/dev/null; then rsvg-convert -w "$2" -h "$2" -o "$3" "$1" 2>/dev/null
   elif command -v resvg        &>/dev/null; then resvg "$1" "$3" --width "$2" >/dev/null 2>&1
-  else magick -background none -density 600 "$1" -resize "${2}x${2}" "$3" 2>/dev/null; fi
+  else $IM -background none -density 600 "$1" -resize "${2}x${2}" "$3" 2>/dev/null; fi
 }
 regions() { # png areaThreshold
-  magick "$1" -alpha extract -threshold 50% \
+  $IM "$1" -alpha extract -threshold 50% \
     -define connected-components:verbose=true \
     -define connected-components:area-threshold="$2" \
     -connected-components 8 null: 2>&1 | grep -cE '^[[:space:]]+[0-9]+:'
@@ -47,13 +52,13 @@ for f in "${FILES[@]}"; do
   render "$f" 256 "$TMP/a.png"; render "$f" 16 "$TMP/b.png"
   [[ -s "$TMP/a.png" ]] || { printf "%-18s RENDER FAILED\n" "$n"; FAIL=1; continue; }
 
-  magick "$TMP/a.png" -alpha extract "$TMP/al.png"
-  ink="$(magick "$TMP/al.png" -format '%[fx:mean]' info:)"
-  magick "$TMP/a.png" -alpha extract -background white -alpha shape -fill '#111' \
+  $IM "$TMP/a.png" -alpha extract "$TMP/al.png"
+  ink="$($IDENT -format '%[fx:mean]' "$TMP/al.png")"
+  $IM "$TMP/a.png" -alpha extract -background white -alpha shape -fill '#111' \
     -colorize 100 -background white -flatten "$TMP/tp.png"
-  tpl="$(magick "$TMP/tp.png" -format '%[fx:standard_deviation]' info:)"
+  tpl="$($IDENT -format '%[fx:standard_deviation]' "$TMP/tp.png")"
   r256="$(regions "$TMP/a.png" 12)"; r16="$(regions "$TMP/b.png" 1)"
-  thin="$(magick "$TMP/b.png" -alpha extract -morphology Distance Euclidean \
+  thin="$($IM "$TMP/b.png" -alpha extract -morphology Distance Euclidean \
           -format '%[fx:maxima*255]' info: 2>/dev/null || echo 0)"
   nodes="$(grep -o '[MLCQAHVSTZmlcqahvstz]' "$f" 2>/dev/null | wc -l | tr -d ' ')"
 
@@ -69,13 +74,13 @@ for f in "${FILES[@]}"; do
 
   printf "%-18s %6.3f %6.3f %4s->%-3s %6.2f %6s  %s\n" \
     "$n" "$ink" "$tpl" "$r256" "$r16" "$thin" "$nodes" "$v"
-  NAMES+=("$n"); magick "$TMP/al.png" -resize 128x128 "$TMP/h_${#NAMES[@]}.png"
+  NAMES+=("$n"); $IM "$TMP/al.png" -resize 128x128 "$TMP/h_${#NAMES[@]}.png"
 done
 
 if [[ ${#NAMES[@]} -ge 2 ]]; then
   echo; echo "Distinctness (RMSE; <0.18 = the round is one idea, not a real choice)"
   for ((i=1;i<=${#NAMES[@]};i++)); do for ((j=i+1;j<=${#NAMES[@]};j++)); do
-    r="$(magick compare -metric RMSE "$TMP/h_$i.png" "$TMP/h_$j.png" null: 2>&1|grep -o '(.*)'|tr -d '()')"; r="${r:-1}"
+    r="$($CMP -metric RMSE "$TMP/h_$i.png" "$TMP/h_$j.png" null: 2>&1|grep -o '(.*)'|tr -d '()')"; r="${r:-1}"
     fl=""; lt "$r" 0.18 && { fl="  <-- TOO ALIKE"; FAIL=1; }
     printf "  %-14s ~ %-14s %6.3f%s\n" "${NAMES[i-1]}" "${NAMES[j-1]}" "$r" "$fl"
   done; done
