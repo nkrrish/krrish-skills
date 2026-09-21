@@ -5,7 +5,7 @@ description: Use when the user types /todo-board, asks for a todo, task, or kanb
 
 # Todo Board
 
-A three column board (Todo, Review, Done) published as a private Artifact with a shared database. One board per project. The page is a finished template with drag and drop, a card view, a header toolbar with live search and an owner filter; this skill only creates it and drives its cards.
+A three column board (Todo, Review, Done) published as a private Artifact with a shared database. One board per project. The page is a finished template with drag and drop, a card view, a header toolbar with live search, an owner filter and a tag filter; this skill only creates it and drives its cards.
 
 ## Column meaning
 
@@ -63,6 +63,7 @@ Collection `cards`. The document key is the card number as a string, and the `id
   "summary": "One line shown on the card face.",
   "blockedBy": "1, 2",
   "owner": "agent",
+  "tags": ["Product", "UX"],
   "details": "## Heading\n\nParagraph.\n\n- bullet\n- **bold** and `code`",
   "column": "todo", "order": 30,
   "createdAt": "2026-09-02T10:00:00.000Z", "updatedAt": "2026-09-02T10:00:00.000Z"
@@ -74,6 +75,7 @@ Collection `cards`. The document key is the card number as a string, and the `id
 - `details` renders only `##` headings, `-` bullets, `**bold**`, and `` `code` ``.
 - `blockedBy`: comma separated card numbers or an empty string. Never edited by a move. The page shows the chip green by itself once the blocker is in `done`.
 - `owner`: `agent` or `user`. `agent` is work Claude does in the codebase. `user` is work only the person can do: testing, deciding, deploying, writing copy, talking to someone. A card the user says they will handle themselves is `user`. When nothing says otherwise, `agent`. Always write the field. The page shows it as an icon on the card face and in the card view (a person for User, a sparkle for Agent), and the header filter (All, User, Agent) hides the other kind.
+- `tags`: an array of short labels, usually one, at most three. Always write the field, `[]` when none fits. Use this vocabulary unless the user names another tag: `Infra` (servers, deploys, backups, monitoring, CI), `Product` (features inside the app), `UX` (flows, copy and polish inside the app, onboarding), `Website` (marketing site, SEO pages, pricing page), `Marketing` (launch, content, comparison pages, waitlist), `Compliance` (Meta App Review, policies, legal pages), `Business` (entity, bank, email, trademark, support, pricing decisions), `Billing` (Stripe, plans, caps, dunning). Same spelling every time; the page's dropdown lists each distinct spelling separately. The page shows tags as chips on the card face, edits them in the card view and the new card form as a comma separated field, and filters on one tag from the toolbar dropdown alongside the owner filter.
 - `order`: sorts within a column, ascending.
 - Timestamps come from `date -u +%Y-%m-%dT%H:%M:%S.000Z`, one value per user message that writes, shared by every write in it. A read only message needs none.
 
@@ -90,6 +92,9 @@ One `read_db` `list` on `cards` per user message with `query: {"limit": 1000}`, 
 | `edit <n>`, "update card 3 to say …" | `update` with only the changed fields plus `updatedAt`. |
 | `mine <n>`, "that one is on me", "assign 3 to me" | `update` with `owner` `user` and `updatedAt`. "Give 3 back to you" or `agent <n>` sets `owner` `agent`. |
 | "show my tasks", "what is on me" | The card table filtered to `owner` `user`. "Your tasks" or "agent tasks" filters to `agent`. |
+| `tag <n> Infra`, "tag 3 as Product and UX" | `update` with the full new `tags` array (existing tags plus the named ones, deduplicated) and `updatedAt`. "Untag 3 Infra" removes one. "Retag 3 as Billing" replaces the array. |
+| "show Infra cards", "what is left on the website" | The card table filtered to cards whose `tags` include that tag, case insensitive. Combines with an owner filter when both are named. |
+| "tag the board", "add tags to every card" | Read every card, choose tags from the vocabulary by title, summary and details, and write them in batches of 50. Reply with the table so the user can correct any. |
 | `delete <n>` | Confirm with the user, then `delete`. |
 | `open`, "link" | The URL from `.claude/todo-board.json`. |
 
@@ -97,7 +102,7 @@ Two or more writes in one message go in a single `batch`.
 
 ## Output
 
-After any change: one line per card changed, saying what happened. Then a markdown table with number, title, owner (User or Agent), column (Todo, Review, Done), and blocked by (blank when none), rows ordered by column Todo, Review, Done and then by `order`. Then the link. Copy in cards and replies uses periods and commas, never em or en dashes.
+After any change: one line per card changed, saying what happened. Then a markdown table with number, title, tags (comma separated, blank when none), owner (User or Agent), column (Todo, Review, Done), and blocked by (blank when none), rows ordered by column Todo, Review, Done and then by `order`. Then the link. Copy in cards and replies uses periods and commas, never em or en dashes.
 
 ## Changing the page
 
@@ -109,5 +114,6 @@ A page change is a change to `board.html` in this skill, then a publish per boar
 - Using a column count for `order`. Orders are never compacted, so a count collides after a move. Use highest order plus 10.
 - Moving your own finished work to `done`. It goes to `review`.
 - Writing markdown the page does not render (tables, links, numbered lists, `###`). Use bullets.
+- Inventing a tag when one in the vocabulary fits, or varying the spelling (`infra`, `Infrastructure`). The dropdown treats each spelling as its own tag.
 - Putting the board URL in memory instead of `.claude/todo-board.json`. Memory is per user, the file is per project.
 - Publishing from a new chat without `url`, or without reading the artifact first. Either one produces a second board or a refused publish.

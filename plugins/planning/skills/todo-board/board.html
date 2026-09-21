@@ -214,6 +214,9 @@
   .chip { font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); }
   .chip.blocked { background: var(--iris-soft); color: var(--iris); }
   .chip.done { background: var(--done-soft); color: var(--done); }
+  .chip.tag { background: transparent; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink-2); }
+  select.control.tagsel { max-width: 180px; }
+  select.control.tagsel.on { background: var(--ink); color: var(--ground); border-color: var(--ink); }
   .owner { width: 18px; height: 18px; flex: none; }
   .owner.user { color: var(--ink-2); }
   .owner.agent { color: var(--iris); }
@@ -251,6 +254,7 @@
   .props label { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
   .props .control { height: 28px; font-size: 12.5px; }
   .props input.blocked { width: 96px; }
+  .props input.tags { width: 200px; }
   .props .chips { margin-left: auto; }
   .modal-body { padding: 14px 20px 20px; overflow-y: auto; }
   .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; margin-bottom: 12px; height: 28px; }
@@ -339,6 +343,8 @@
       <button data-owner="user"><svg class="owner user" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="6.5" r="3.4"/><path d="M3.6 17.2c.7-3.5 3.3-5.4 6.4-5.4s5.7 1.9 6.4 5.4"/></svg>User</button>
       <button data-owner="agent"><svg class="owner agent" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9 2.4c.2-.6 1-.6 1.2 0l1.4 4.1c.1.3.3.5.6.6l4.1 1.4c.6.2.6 1 0 1.2l-4.1 1.4c-.3.1-.5.3-.6.6l-1.4 4.1c-.2.6-1 .6-1.2 0l-1.4-4.1c-.1-.3-.3-.5-.6-.6L2.9 9.7c-.6-.2-.6-1 0-1.2L7 7.1c.3-.1.5-.3.6-.6z"/><circle cx="15.8" cy="15.6" r="1.7"/></svg>Agent</button>
     </div>
+    <select class="control tagsel" id="tag-filter" aria-label="Filter by tag"><option value="">All tags</option></select>
+    <datalist id="tag-list"></datalist>
     <span class="count-note" id="count-note"></span>
     <div class="search" id="search">
       <span class="field">
@@ -374,9 +380,11 @@
   let drag = null;
   let saveTimer = null;
   let ownerFilter = 'all';
+  let tagFilter = '';
   let query = '';
   let lastFocus = null;
   try { ownerFilter = localStorage.getItem(LS_KEY + '-filter') || 'all'; } catch (e) {}
+  try { tagFilter = localStorage.getItem(LS_KEY + '-tag') || ''; } catch (e) {}
 
   const $ = (s, r = document) => r.querySelector(s);
   const boardEl = $('#board');
@@ -426,15 +434,37 @@
   function nextNumber() { const n = Object.values(cards).map(c => Number(c.number) || 0); return (n.length ? Math.max(...n) : 0) + 1; }
   function ownerOf(c) { return c.owner === 'user' ? 'user' : 'agent'; }
   function ownerIcon(c) { return ICONS[ownerOf(c)]; }
+  function tagsOf(c) { return Array.isArray(c.tags) ? c.tags.map(t => String(t).trim()).filter(Boolean) : []; }
+  function parseTags(s) {
+    const known = allTags().map(t => t.name);
+    const out = [];
+    for (const raw of String(s || '').split(',')) {
+      const t = raw.trim(); if (!t) continue;
+      const canon = known.find(k => k.toLowerCase() === t.toLowerCase()) || t;
+      if (!out.some(x => x.toLowerCase() === canon.toLowerCase())) out.push(canon);
+    }
+    return out;
+  }
+  function allTags() {
+    const counts = {};
+    for (const c of Object.values(cards)) for (const t of tagsOf(c)) counts[t] = (counts[t] || 0) + 1;
+    return Object.keys(counts).sort((a, b) => a.localeCompare(b)).map(name => ({ name, count: counts[name] }));
+  }
+  function hasTag(c, tag) { return tagsOf(c).some(t => t.toLowerCase() === tag.toLowerCase()); }
+  function tagChips(card) {
+    return tagsOf(card).map(t => '<span class="chip tag">' + esc(t) + '</span>').join('');
+  }
   function matches(c) {
     if (!query) return true;
-    const hay = ('#' + (c.number ?? '') + ' ' + (c.title || '') + ' ' + (c.summary || '') + ' ' + (c.details || '')).toLowerCase();
+    const hay = ('#' + (c.number ?? '') + ' ' + (c.title || '') + ' ' + (c.summary || '') + ' ' + (c.details || '') + ' ' + tagsOf(c).join(' ')).toLowerCase();
     return query.split(/\s+/).filter(Boolean).every(w => hay.includes(w));
   }
+  function filtering() { return Boolean(query) || ownerFilter !== 'all' || Boolean(tagFilter); }
   function inColumn(col, visibleOnly) {
     return Object.values(cards)
       .filter(c => c.column === col)
       .filter(c => !visibleOnly || ownerFilter === 'all' || ownerOf(c) === ownerFilter)
+      .filter(c => !visibleOnly || !tagFilter || hasTag(c, tagFilter))
       .filter(c => !visibleOnly || matches(c))
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || (a.number ?? 0) - (b.number ?? 0));
   }
@@ -494,6 +524,7 @@
       if (!list.length) {
         const e = document.createElement('div'); e.className = 'empty';
         if (query) e.textContent = 'No matches';
+        else if (tagFilter) e.textContent = 'No ' + tagFilter + ' cards here';
         else if (ownerFilter !== 'all') e.textContent = 'No ' + ownerFilter + ' cards here';
         else if (col.id === 'todo') { e.innerHTML = '<span>Nothing to do yet</span><button class="btn" type="button">+ Add a card</button>'; e.querySelector('button').addEventListener('click', openNewForm); }
         else e.textContent = col.id === 'review' ? 'Nothing waiting for review' : 'Nothing finished yet';
@@ -505,14 +536,24 @@
     }
     const total = Object.keys(cards).length;
     const shown = COLUMNS.reduce((n, c) => n + inColumn(c.id, true).length, 0);
-    $('#count-note').textContent = (query || ownerFilter !== 'all') ? shown + ' of ' + total + ' cards' : total + ' card' + (total === 1 ? '' : 's');
+    $('#count-note').textContent = filtering() ? shown + ' of ' + total + ' cards' : total + ' card' + (total === 1 ? '' : 's');
+    syncTags();
+  }
+  function syncTags() {
+    const tags = allTags();
+    if (tagFilter && !tags.some(t => t.name.toLowerCase() === tagFilter.toLowerCase())) tags.push({ name: tagFilter, count: 0 });
+    const sel = $('#tag-filter');
+    sel.innerHTML = '<option value="">All tags</option>' + tags.map(t => '<option value="' + esc(t.name) + '">' + esc(t.name) + ' (' + t.count + ')</option>').join('');
+    sel.value = tagFilter;
+    sel.classList.toggle('on', Boolean(tagFilter));
+    $('#tag-list').innerHTML = tags.filter(t => t.count).map(t => '<option value="' + esc(t.name) + '">').join('');
   }
   function cardEl(card) {
     const el = document.createElement('article');
     el.className = 'card' + (card.column === 'done' ? ' is-done' : '');
     el.draggable = true; el.tabIndex = 0; el.dataset.id = card.id;
     el.setAttribute('aria-label', 'Card ' + card.number + ', ' + card.title);
-    const chips = blockedChips(card);
+    const chips = tagChips(card) + blockedChips(card);
     el.innerHTML =
       '<div class="meta"><span class="num">#' + esc(card.number) + '</span>' + ownerIcon(card) + '</div>' +
       '<div class="title">' + esc(card.title) + '</div>' +
@@ -633,6 +674,7 @@
         '<label>Column <select class="control" id="m-col">' + colOptions + '</select></label>' +
         '<label>' + ownerIcon(card) + 'Owner <select class="control" id="m-owner"><option value="agent"' + (ownerOf(card) === 'agent' ? ' selected' : '') + '>Agent</option><option value="user"' + (ownerOf(card) === 'user' ? ' selected' : '') + '>User</option></select></label>' +
         '<label>Blocked by <input class="control blocked" id="m-blocked" placeholder="e.g. 1, 4" value="' + esc(card.blockedBy || '') + '"></label>' +
+        '<label>Tags <input class="control tags" id="m-tags" list="tag-list" autocomplete="off" placeholder="e.g. Infra, Product" value="' + esc(tagsOf(card).join(', ')) + '"></label>' +
         (chips ? '<span class="chips">' + chips + '</span>' : '') +
       '</div>' +
       '<div class="modal-body">' +
@@ -665,6 +707,7 @@
       writeCard(Object.assign({}, cards[card.id], { title: v, updatedAt: now() }));
     });
     $('#m-blocked', modal).addEventListener('change', e => { writeCard(Object.assign({}, cards[card.id], { blockedBy: e.target.value.trim(), updatedAt: now() })); renderModal(); $('#m-blocked', modalRoot).focus(); });
+    $('#m-tags', modal).addEventListener('change', e => { writeCard(Object.assign({}, cards[card.id], { tags: parseTags(e.target.value), updatedAt: now() })); renderModal(); $('#m-tags', modalRoot).focus(); });
     const ta = $('#m-details', modal);
     if (ta) ta.addEventListener('input', () => { $('#m-hint', modalRoot).textContent = 'Editing'; clearTimeout(saveTimer); saveTimer = setTimeout(commitDetails, 700); });
     if (initial) $('#m-close', modal).focus();
@@ -693,6 +736,7 @@
           '<div class="field"><span>Owner</span><div class="filter" id="n-owner" role="group" aria-label="Owner"><button type="button" data-owner="agent" class="on">' + ICONS.agent + 'Agent</button><button type="button" data-owner="user">' + ICONS.user + 'User</button></div></div>' +
           '<label class="field"><span>Blocked by</span><input id="n-blocked" autocomplete="off" placeholder="Card numbers, e.g. 1, 4"></label>' +
         '</div>' +
+        '<label class="field"><span>Tags</span><input id="n-tags" list="tag-list" autocomplete="off" placeholder="Comma separated, e.g. Infra, Product"></label>' +
         '<label class="field"><span>Details</span><textarea id="n-details" placeholder="## Heading, - bullets, **bold**, `code`"></textarea></label>' +
         '<div class="actions"><button type="button" class="btn quiet" id="n-cancel">Cancel</button><button type="submit" class="btn primary">Add to Todo</button></div>' +
       '</form>', 'New card');
@@ -712,6 +756,7 @@
         id: String(number), number, title,
         summary: $('#n-summary', modal).value.trim(),
         blockedBy: $('#n-blocked', modal).value.trim(),
+        tags: parseTags($('#n-tags', modal).value),
         owner,
         details: $('#n-details', modal).value,
         column: 'todo',
@@ -733,6 +778,13 @@
     syncFilter(); render();
   });
   syncFilter();
+
+  /* ---------- Tag filter ---------- */
+  $('#tag-filter').addEventListener('change', e => {
+    tagFilter = e.target.value;
+    try { localStorage.setItem(LS_KEY + '-tag', tagFilter); } catch (err) {}
+    render();
+  });
 
   /* ---------- Search ---------- */
   const searchWrap = $('#search'), searchInput = $('#search-input');

@@ -7,6 +7,19 @@ claude plugin marketplace update krrish-skills
 claude plugin update <plugin>@krrish-skills   # restart required
 ```
 
+## planning 1.3.0
+
+- Cards carry `tags` (an array). The board shows them as chips on the card
+  face, edits them in the card view and the new card form, and filters on one
+  tag from a toolbar dropdown that sits next to the All/User/Agent filter.
+  Search matches tags too.
+- `SKILL.md` gains a tag vocabulary (Infra, Product, UX, Website, Marketing,
+  Compliance, Business, Billing), `tag <n> …` and "show <tag> cards" commands,
+  and a tags column in the card table.
+- Existing boards need one republish of `board.html` to get the chips and the
+  filter (see "Changing the page" in `SKILL.md`). Cards without `tags` render as
+  before.
+
 ## planning 1.2.0
 
 - The SessionStart hook now ships with the plugin (`hooks/hooks.json`), so
