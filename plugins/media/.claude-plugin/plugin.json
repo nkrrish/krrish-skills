@@ -1,0 +1,19 @@
+{
+  "name": "media",
+  "version": "1.0.0",
+  "description": "Generate images and videos with the Higgsfield Open API on your own key — realistic creator photos, product shoots, UGC video — with live per-account pricing and an approval prompt before every spend. Unofficial.",
+  "author": {
+    "name": "Krishna",
+    "url": "https://github.com/nkrrish"
+  },
+  "license": "GPL-3.0-or-later",
+  "keywords": [
+    "higgsfield",
+    "image-generation",
+    "video-generation",
+    "ugc",
+    "product-photography",
+    "kling",
+    "seedance"
+  ]
+}

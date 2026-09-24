@@ -57,5 +57,31 @@ done
 rm -rf "$tmp"
 
 echo
+echo "== media: guard asks before every spend or key exposure =="
+python3 "$ROOT/tests/guard_cases.py" || fail=1
+
+echo
+echo "== media: hf.sh fails safe offline =="
+# None of these may reach the network: each must stop before any request is made.
+HFS="$ROOT/plugins/media/skills/higgsfield/scripts/hf.sh"
+home="$(mktemp -d)"
+check() { # check <name> <want-exit> <cmd...>
+  local name="$1" want="$2"; shift 2
+  "$@" >/dev/null 2>&1; local rc=$?
+  if [ "$rc" -eq "$want" ]; then echo "  ok   $name"; else echo "  FAIL $name (exit $rc, want $want)"; fail=1; fi
+}
+nokey() { env -i HOME="$home" PATH="/usr/bin:/bin" XDG_CONFIG_HOME="$home/.config" "$@"; }
+fake()  { env -i HOME="$home" PATH="/usr/bin:/bin" HF_API_KEY_ID=x HF_API_KEY_SECRET=y "$@"; }
+check "script parses"                    0 bash -n "$HFS"
+check "no key: status says so"           2 nokey bash "$HFS" status
+check "no key: submit refuses"           2 nokey bash "$HFS" submit /x '{"prompt":"a"}'
+check "invalid JSON body refused"        2 fake  bash "$HFS" estimate /x '{"prompt":'
+check "missing body file refused"        2 fake  bash "$HFS" submit /x @"$home/none.json"
+check "bad request id refused"           2 fake  bash "$HFS" wait 'abc;rm'
+check "unknown file type refused"        2 fake  bash "$HFS" upload "$HFS"
+check "no subcommand prints usage"       2 bash "$HFS"
+rm -rf "$home"
+
+echo
 [[ $fail -eq 0 ]] && echo "ALL TESTS PASSED" || echo "TESTS FAILED"
 exit $fail

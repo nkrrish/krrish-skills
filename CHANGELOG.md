@@ -7,6 +7,21 @@ claude plugin marketplace update krrish-skills
 claude plugin update <plugin>@krrish-skills   # restart required
 ```
 
+## media 1.0.0
+
+Initial release. One skill, `higgsfield`, for the Higgsfield Open API on the user's own key.
+
+- `hf.sh setup` stores the key in the macOS Keychain (or a mode-600 file elsewhere) through
+  a hidden-input dialog, so the key never passes through the chat, and verifies it.
+- Prices come from the API's estimate endpoint for the connected account (`hf.sh prices`,
+  `hf.sh estimate`), so plan discounts show up and nothing is quoted from memory.
+- A PreToolUse guard ships with the plugin (`hooks/hooks.json`): Claude Code asks before
+  any generation, upload or cancel, and before anything could read or print the key — in
+  every permission mode, including auto.
+- Guides for realistic creator photos, product photoshoots (10 modes, adapted from
+  higgsfield-ai/skills under MIT), Soul ID characters and a stills-first UGC video pipeline.
+- Requires `python3` and `curl`.
+
 ## planning 1.3.0
 
 - Cards carry `tags` (an array). The board shows them as chips on the card

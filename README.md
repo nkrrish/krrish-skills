@@ -12,6 +12,7 @@ worked — and fail loudly when it didn't.
 /plugin marketplace add nkrrish/krrish-skills
 /plugin install branding@krrish-skills
 /plugin install planning@krrish-skills
+/plugin install media@krrish-skills
 ```
 
 Install only what you need. Each enabled skill costs context permanently, so they are split
@@ -66,6 +67,37 @@ creates it and drives the cards.
 Ships a SessionStart hook: any chat opened in a directory with a board picks up its link
 automatically, so you never publish a second board for the same project. Requires `jq`.
 
+## media — Higgsfield images and video on your own key
+
+Realistic creator photos, product shoots and UGC video through the
+[Higgsfield Open API](https://docs.higgsfield.ai), billed to your own prepaid key.
+Unofficial — not affiliated with Higgsfield AI.
+
+**What makes it different: it can't spend your money without asking, and it quotes the
+real price first.**
+
+```
+$ hf.sh prices
+Prices on your account (Higgsfield estimates, nothing is charged):
+  MODEL                              REQUEST                           USD
+  Soul 2 (realistic people)          1 image, 720p                  $0.004
+  Marketing Studio 2.5 Sunburst      1 image, 2k, high            metered*
+  Kling 3.0 Standard                 5s, sound off                  $0.210
+  Kling 3.0 Standard                 5s, sound on                   $0.315
+  …
+```
+
+- **A guard hook, not a promise.** It ships with the plugin and makes Claude Code ask before
+  every generation, upload or cancel — in every permission mode, including auto — and before
+  anything could read or print your key. A regression suite of 45 tool calls proves it,
+  including attempts to smuggle a paid call behind a free one.
+- **Prices from your account, not from a table.** Every job runs Higgsfield's free estimate
+  endpoint on the exact request first, so plan discounts show up and nothing goes stale.
+- **The key never touches the chat.** `setup` opens a hidden-input dialog and stores it in the
+  macOS Keychain (or a mode-600 file on Linux), then verifies it with a free call.
+
+Full guide: [plugins/media/README.md](plugins/media/README.md). Requires `python3` and `curl`.
+
 ---
 
 ## Why the verification focus
@@ -102,6 +134,10 @@ in the skill's `SKILL.md` or `references/`, and the document must parse with no 
 A renamed placeholder is otherwise silent — nothing notices until substitution leaves it in the
 published page.
 
+For `media`, it runs 45 tool calls through the guard hook — every paid call, key read and
+chained-command trick must prompt, and free polling must not — and checks that `hf.sh` stops
+before touching the network when there's no key, bad JSON or a malformed request ID.
+
 Where the `claude` CLI is available the suite also runs `claude plugin validate` on the
 marketplace and each plugin; it skips that step where the CLI is absent.
 
@@ -116,4 +152,6 @@ Logos, boards and other **output** you create with these skills are yours — ou
 derivative work of the tool. The copyleft applies to modified copies of the skills themselves.
 
 `branding` derives in part from [logo-designer-skill](https://github.com/neonwatty/logo-designer-skill)
-by Jeremy Watt (MIT), relicensed under GPL-3.0 as that licence permits. See [NOTICE](NOTICE).
+by Jeremy Watt (MIT), relicensed under GPL-3.0 as that licence permits. `media` adapts parts of
+[higgsfield-ai/skills](https://github.com/higgsfield-ai/skills) by Higgsfield AI (MIT) the same
+way. See [NOTICE](NOTICE).

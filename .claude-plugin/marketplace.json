@@ -15,6 +15,12 @@
       "description": "A three-column todo/kanban board per project, published as a private Artifact with a shared database and drag-and-drop.",
       "source": "./plugins/planning",
       "category": "productivity"
+    },
+    {
+      "name": "media",
+      "description": "Generate images and videos with the Higgsfield Open API on your own key: realistic creator photos, product shoots, UGC video. Quotes your account's real price before every spend and asks before anything is charged. Unofficial.",
+      "source": "./plugins/media",
+      "category": "creative"
     }
   ]
 }
