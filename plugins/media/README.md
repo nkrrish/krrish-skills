@@ -1,7 +1,8 @@
-# media — Higgsfield for Claude Code
+# media — Higgsfield API skill for Claude Code
 
 Make realistic creator photos, product shoots and UGC videos from a Claude Code chat,
-using **your own** [Higgsfield Open API](https://docs.higgsfield.ai) key.
+using **your own** key for the [Open Higgsfield API](https://docs.higgsfield.ai) — Soul 2,
+Marketing Studio, Kling 3.0 and Seedance 2.0.
 
 > **Unofficial.** Not affiliated with, endorsed by or sponsored by Higgsfield AI.
 > "Higgsfield" is their trademark. You pay Higgsfield directly from your own prepaid balance.

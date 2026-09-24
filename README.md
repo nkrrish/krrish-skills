@@ -3,7 +3,8 @@
 [![validate](https://github.com/nkrrish/krrish-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/nkrrish/krrish-skills/actions/workflows/validate.yml)
 [![licence: GPL-3.0](https://img.shields.io/badge/licence-GPL--3.0-blue.svg)](LICENSE)
 
-Skills for [Claude Code](https://claude.com/claude-code) that verify their own output.
+Skills for [Claude Code](https://claude.com/claude-code) that verify their own output: logo
+design, a project todo board, and Higgsfield API image and video generation.
 
 Most skills tell a model what to do and hope. These ship the tooling to check whether it
 worked — and fail loudly when it didn't.
@@ -67,10 +68,10 @@ creates it and drives the cards.
 Ships a SessionStart hook: any chat opened in a directory with a board picks up its link
 automatically, so you never publish a second board for the same project. Requires `jq`.
 
-## media — Higgsfield images and video on your own key
+## media — Higgsfield API skill for Claude Code (images, UGC video)
 
-Realistic creator photos, product shoots and UGC video through the
-[Higgsfield Open API](https://docs.higgsfield.ai), billed to your own prepaid key.
+Realistic creator photos, product shoots and UGC video from Claude Code. Works with the
+[Open Higgsfield API](https://docs.higgsfield.ai), billed to your own prepaid key.
 Unofficial — not affiliated with Higgsfield AI.
 
 **What makes it different: it can't spend your money without asking, and it quotes the
