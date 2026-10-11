@@ -57,6 +57,28 @@ done
 rm -rf "$tmp"
 
 echo
+echo "== branding python tools run offline =="
+# None of these may touch the network: no --refs-industry, no --format paths.
+S="$ROOT/plugins/branding/skills/logo-designer/scripts"
+tmp="$(mktemp -d)"
+pyok() { # pyok <name> <cmd...>
+  local name="$1"; shift
+  if "$@" >"$tmp/out" 2>&1; then echo "  ok   $name"; else echo "  FAIL $name"; sed 's/^/    /' "$tmp/out"; fail=1; fi
+}
+pyok "svg_audit parses good fixtures"  python3 -I "$S/svg_audit.py" --json "$FIX"/good/*.svg
+pyok "search_library reads catalog"    python3 -I "$S/search_library.py" --industry fintech --summary
+pyok "preview_sheet writes HTML"       python3 -I "$S/preview_sheet.py" "$FIX"/good/*.svg -o "$tmp/sheet.html"
+pyok "export_variants writes SVGs"     python3 -I "$S/export_variants.py" "$FIX/good/squircle.svg" \
+                                         --mono "#0F7C80" --out-dir "$tmp/ex"
+for f in "$tmp"/ex/*.svg; do
+  python3 -c "import xml.dom.minidom,sys;xml.dom.minidom.parse(sys.argv[1])" "$f" \
+    || { echo "  FAIL $(basename "$f") is not valid XML"; fail=1; }
+done
+[ "$(ls "$tmp"/ex/*.svg 2>/dev/null | wc -l)" -ge 5 ] || { echo "  FAIL expected 5+ variant SVGs"; fail=1; }
+if find "$S" -name __pycache__ | grep -q .; then echo "  FAIL scripts left __pycache__ in the skill"; fail=1; fi
+rm -rf "$tmp"
+
+echo
 echo "== media: guard asks before every spend or key exposure =="
 python3 "$ROOT/tests/guard_cases.py" || fail=1
 
