@@ -16,6 +16,7 @@ Four tools from [logo-design-skill](https://github.com/kaankiziltug/logo-design-
   Phase 1.5 so at least one concept departs from them. The catalog ships; the SVGs
   themselves are third-party trademarks, so they are downloaded on demand into
   `~/.cache/logo-designer/library-svg` from a pinned commit and never bundled.
+  `search_library.py --download-all` caches the whole library (~11 MB) for offline use.
 - `svg_audit.py` — source-level checks alongside `audit.sh`: live text, rasters, filters,
   unexpanded strokes, near-miss angles, tiny sub-paths, centring. Advisory, always exits 0.
 - `preview_sheet.py` — full HTML test sheet for Phase 3: size ladder, pixel test, five

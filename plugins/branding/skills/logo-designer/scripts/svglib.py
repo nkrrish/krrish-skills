@@ -45,29 +45,32 @@ RGB_RE = re.compile(r"rgba?\(\s*([\d.]+%?)\s*,\s*([\d.]+%?)\s*,\s*([\d.]+%?)")
 SHAPE_TAGS = ("path", "circle", "ellipse", "rect", "polygon", "polyline", "line")
 
 
-def fetch_library_svgs(files):
-    """Return local paths for library files, downloading any not yet cached. Files that fail are skipped."""
+def _fetch_library_svg(name):
     import urllib.parse
     import urllib.request
+    dst = os.path.join(LIBRARY_SVG_DIR, name)
+    if os.path.exists(dst):
+        return dst
+    try:
+        with urllib.request.urlopen(LIBRARY_SVG_URL + urllib.parse.quote(name), timeout=20) as r:
+            data = r.read()
+    except OSError as exc:
+        print(f"(library: could not fetch {name}: {exc})", file=sys.stderr)
+        return None
+    tmp = dst + ".part"
+    with open(tmp, "wb") as fh:
+        fh.write(data)
+    os.replace(tmp, dst)
+    return dst
+
+
+def fetch_library_svgs(files, workers=1):
+    """Return local paths for library files, downloading any not yet cached. Files that fail are skipped."""
+    from concurrent.futures import ThreadPoolExecutor
     os.makedirs(LIBRARY_SVG_DIR, exist_ok=True)
-    paths = []
-    for name in files:
-        if os.path.basename(name) != name or not name.endswith(".svg"):
-            continue
-        dst = os.path.join(LIBRARY_SVG_DIR, name)
-        if not os.path.exists(dst):
-            try:
-                with urllib.request.urlopen(LIBRARY_SVG_URL + urllib.parse.quote(name), timeout=20) as r:
-                    data = r.read()
-            except OSError as exc:
-                print(f"(library: could not fetch {name}: {exc})", file=sys.stderr)
-                continue
-            tmp = dst + ".part"
-            with open(tmp, "wb") as fh:
-                fh.write(data)
-            os.replace(tmp, dst)
-        paths.append(dst)
-    return paths
+    names = [n for n in files if os.path.basename(n) == n and n.endswith(".svg")]
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        return [p for p in pool.map(_fetch_library_svg, names) if p]
 
 
 def local(tag):

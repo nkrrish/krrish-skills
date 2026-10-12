@@ -116,8 +116,8 @@ Do this before drawing anything, and state it to the user.
    category repeats. Those are its conventions: at least one concept should depart from them.
    `--list-values` shows valid industries; `--technique negative-space --exemplary` finds
    teaching examples of one technique. `--format paths` downloads the matching SVGs (cached in
-   `~/.cache/logo-designer/library-svg`) for studying structure. They are other companies'
-   trademarks — never trace or adapt them.
+   `~/.cache/logo-designer/library-svg`) for studying structure; `--download-all` caches all
+   ~11 MB at once for offline use. They are other companies' trademarks — never trace or adapt them.
 2. **Write one conceptual seed per concept** — a single sentence naming the specific idea that
    concept encodes, which would be false of a competitor. Seeds are written before SVG, never
    reverse-engineered afterwards.

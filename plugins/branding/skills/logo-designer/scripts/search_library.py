@@ -13,6 +13,7 @@ Examples:
   python3 scripts/search_library.py --industry payments-fintech --summary
   python3 scripts/search_library.py --query cloud --type pictorial --format json
   python3 scripts/search_library.py --list-values          # show every allowed filter value
+  python3 scripts/search_library.py --download-all         # cache all SVGs (~11 MB) for offline use
 
 Filters combine with AND. Multi-value filters (--technique, --geometry) accept a comma list and require all.
 """
@@ -128,9 +129,17 @@ def main():
     ap.add_argument("--format", choices=("table", "paths", "json"), default="table")
     ap.add_argument("--summary", action="store_true", help="aggregate view: conventions of the matching set")
     ap.add_argument("--list-values", action="store_true", help="print allowed values for every filter")
+    ap.add_argument("--download-all", action="store_true",
+                    help=f"download every library SVG (~11 MB) into {svglib.LIBRARY_SVG_DIR} for offline use")
     a = ap.parse_args()
 
     cat = load_catalog()
+    if a.download_all:
+        names = [r["file"] for r in cat]
+        print(f"downloading {len(names)} SVGs into {svglib.LIBRARY_SVG_DIR} (already-cached files are skipped)…")
+        got = svglib.fetch_library_svgs(names, workers=16)
+        print(f"{len(got)}/{len(names)} cached")
+        return 0 if len(got) == len(names) else 1
     if a.list_values:
         for key in ("mark_type", "symbol_type", "industry", "primary_family", "aspect_class", "type_style", "case"):
             print(f"{key}: {', '.join(sorted({str(r.get(key)) for r in cat if r.get(key)}))}")
@@ -199,4 +208,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
