@@ -7,6 +7,25 @@ claude plugin marketplace update krrish-skills
 claude plugin update <plugin>@krrish-skills   # restart required
 ```
 
+## branding 1.2.0
+
+New skill, `brand-builder`: name finding and vetting before the logo.
+
+- `gen_names.py` generates coined, formula, letter, pair and affix names with shape, rude-word
+  and lookalike filters.
+- `check_domains.py` checks any TLDs the user picks (.com, .ai, .app, .io, country codes):
+  RDAP from the IANA bootstrap list where the registry has it, WHOIS where it does not. No
+  account or key.
+- `score_names.py` and `build_sheet.py` make a filterable, starrable name sheet with a
+  "Copy my stars" hand-back, a per-name list of free domains and a domain filter.
+- A full brand-board step for the chosen name, following the brandkit method in our own words.
+- `build_shortlist.py` makes the shortlist page: brand cards, research, recordings, in-use mockups.
+- `voice.py` records pronunciations and runs the hear-it-then-spell-it test (OpenAI audio API).
+- `probe_handles.py` and `contrast.py` for handles and WCAG contrast.
+
+Also bundles `canvas-design` (Apache-2.0) and `design-taste-frontend` (MIT) under their own
+licences; see NOTICE.
+
 ## branding 1.1.0
 
 Four tools from [logo-design-skill](https://github.com/kaankiziltug/logo-design-skill)

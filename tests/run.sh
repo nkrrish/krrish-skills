@@ -105,5 +105,30 @@ check "no subcommand prints usage"       2 bash "$HFS"
 rm -rf "$home"
 
 echo
+echo "== branding: brand-builder scripts work offline =="
+# No network here: names are generated, scored and rendered from a fixture; the domain
+# checker and handle probe are only asked for their usage.
+BB="$ROOT/plugins/branding/skills/brand-builder/scripts"
+bb="$(mktemp -d)"
+check "gen_names makes names"            0 python3 "$BB/gen_names.py" --count 60 --seeds cue,nod --out "$bb/names.json"
+python3 - "$bb" <<'PY'
+import json, sys
+d = sys.argv[1]
+names = json.load(open(f"{d}/names.json"))
+json.dump([dict(n, domain=n["name"] + ".com", status="free") for n in names], open(f"{d}/checked.json", "w"))
+PY
+check "score_names scores"               0 python3 "$BB/score_names.py" "$bb/checked.json" --out "$bb/scored.json"
+check "build_sheet renders"              0 python3 "$BB/build_sheet.py" "$bb/scored.json" --out "$bb/sheet.html"
+check "sheet has its filters"            0 grep -q 'id="fEnd"' "$bb/sheet.html"
+python3 "$BB/build_shortlist.py" --example > "$bb/short.json" 2>/dev/null
+check "build_shortlist renders"          0 python3 "$BB/build_shortlist.py" "$bb/short.json" --out "$bb/short.html"
+check "contrast passes a good pair"      0 python3 "$BB/contrast.py" "#15171C/#F6C445"
+check "contrast fails a bad pair"        1 python3 "$BB/contrast.py" "#F6C445/#F7F7F4"
+check "voice refuses without a key"      1 env -u OPENAI_API_KEY python3 "$BB/voice.py" say --name x --say y --out "$bb/a"
+check "check_domains needs input"        2 python3 "$BB/check_domains.py"
+check "no rude names generated"          0 python3 -c "import json,sys;n=[x['name'] for x in json.load(open(sys.argv[1]))];sys.exit(any(b in x for x in n for b in ('sex','fuk','ass','lez')))" "$bb/names.json"
+rm -rf "$bb"
+
+echo
 [[ $fail -eq 0 ]] && echo "ALL TESTS PASSED" || echo "TESTS FAILED"
 exit $fail
