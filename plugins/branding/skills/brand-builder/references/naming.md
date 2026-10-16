@@ -16,7 +16,7 @@
 | formula | sharp start + vowel + firm pair + soft ending | Zernio, Cirnio, Kalnio, Gurnix, Zalvum | Endings: -io, -ix, -um, -a, -o, -ena, -ora, -ivo, -ani. -io, -ix and -um still have free .coms with almost any first letter; -ora, -ena, -ivo, -ani are nearly full. |
 | letter | root + one capital letter | BenQ, ZeroM, GlimoQ, RecapQ | Real-word roots are almost all taken; coined roots work. Show it styled (GlimoQ) with the plain domain under it. |
 | pair | root + two letters | TikoHQ, CueUX, Junoly | HQ and -ly are friendly and often free. The extra letters can live only in the domain (brand "Tiko" on tikohq.com). |
-| affix | prefix or suffix + everyday word | saytuesday, withgelato, meethin | Uses the user's liked affixes. |
+| affix | prefix or suffix + a short name or word | heyjova.com, withgelato.com, jovalabs.com | Uses the user's liked affixes. The brand is the root ("Jova"); the affix is only in the domain. Short 3 and 4 letter roots almost never have a free .com on their own, so this is how they get one. |
 | word | everyday word, plain | Granola, Monday | Almost never free on .com; check anyway for the user's favourites. |
 
 ### Prefixes and suffixes
@@ -25,6 +25,10 @@ Popular and still pleasant: say, meet, with, its, the, hello, try, use, go, get,
 Suffixes: hq, labs, app, ly, io, hub, kit. Ask which the user likes and dislikes before using
 any; people often hate specific ones (for example ask, talk, yo, ok, hi). "try" and "use" are
 overused.
+
+Prefixes and the suffixes hq, labs, app, hub, kit and ai are domain-only: always present the
+name as the root with the domain under it ("Jova", on heyjova.com), never as "HeyJova". The
+suffixes ly and io join the name instead (Junoly, Kalnio).
 
 ## Rules
 

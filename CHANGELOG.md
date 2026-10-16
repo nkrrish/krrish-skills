@@ -7,6 +7,15 @@ claude plugin marketplace update krrish-skills
 claude plugin update <plugin>@krrish-skills   # restart required
 ```
 
+## branding 1.2.2
+
+- Names on a prefixed or suffixed domain now show the proposed brand, not the domain label: the
+  sheet tile reads "Jova" with "on heyjova.com" under it. `gen_names.py` writes a `brand`
+  field for prefixes and the domain-only suffixes (hq, labs, app, hub, kit, ai);
+  `score_names.py` scores sound, look, length and syllables on the brand and can infer it for
+  hand-added affix and pair names; `build_sheet.py` adds a "Domain shape" filter and copies
+  stars as "Jova (heyjova.com)".
+
 ## branding 1.2.1
 
 - `canvas-design` and `design-taste-frontend` are no longer bundled, so you always get their

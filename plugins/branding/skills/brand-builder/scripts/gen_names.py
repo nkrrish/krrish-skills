@@ -7,8 +7,9 @@ Usage:
       [--min-len 5] [--max-len 8] [--avoid granola,otter] [--exclude seen.txt] \
       [--seed 7] --out names.json
 
-Output: a JSON list of {"name", "style", "display"}. "display" is how the name
-would be styled (GlimoQ, TikoHQ); "name" is the lowercase domain label.
+Output: a JSON list of {"name", "style", "display"} plus "brand" when the domain carries a
+prefix or a domain-only suffix (heyjova.com and jovahq.com both have brand "jova"). "display"
+is how the brand is written (GlimoQ, Jova); "name" is the lowercase domain label.
 """
 import argparse, json, random, re, sys
 
@@ -19,6 +20,8 @@ MIDS = ["lv", "rn", "rv", "lm", "nv", "lk", "rm", "ln", "mb", "nd", "lb", "nt", 
 FORMULA_ENDS = ["io", "ix", "um", "a", "o", "ena", "ora", "ivo", "ani", "ly"]
 ONE_LETTERS = list("qmxkvz")
 PAIRS = ["hq", "ly", "io", "ix", "ox", "ux", "km", "mx", "qo"]
+# Suffixes that live only in the domain: the brand is the root (Tiko on tikohq.com).
+DOMAIN_ONLY = {"hq", "labs", "app", "hub", "kit", "ai"}
 BAD = ["fuk", "fuc", "sex", "cum", "tit", "nig", "fag", "ass", "kkk", "shit", "poo", "pee",
        "dik", "dic", "cok", "gay", "nazi", "rape", "die", "kil", "porn", "anal", "jiz", "wank",
        "puta", "merd", "kak", "lez", "piss", "crap", "dum", "slut"]
@@ -91,13 +94,15 @@ def main():
         seen = {l.strip().lower() for l in open(a.exclude) if l.strip()}
     out, names = [], set()
 
-    def add(n, style, check_shape=True):
+    def add(n, style, check_shape=True, brand=None):
         n = n.lower()
         if n in names or n in seen: return
         if check_shape and not ok_shape(n, a.min_len, a.max_len): return
         if not check_shape and not (a.min_len <= len(n) <= max(a.max_len, 12)): return
         if any(lev(n, b) < 2 for b in avoid): return
-        names.add(n); out.append({"name": n, "style": style, "display": style_display(n, style)})
+        rec = {"name": n, "style": style, "display": style_display(n, style)}
+        if brand and brand != n: rec.update(brand=brand, display=brand.capitalize())
+        names.add(n); out.append(rec)
 
     per = max(1, a.count // max(1, len(styles)))
     for st in styles:
@@ -111,12 +116,15 @@ def main():
                 add(root + r.choice(ONE_LETTERS), st, check_shape=False)
             elif st == "pair":
                 root = r.choice(seeds) if seeds and r.random() < .3 else soft_root(r)
-                add(root + r.choice(PAIRS), st, check_shape=False)
+                suf = r.choice(PAIRS)
+                add(root + suf, st, check_shape=False, brand=root if suf in DOMAIN_ONLY else None)
             elif st == "affix":
                 if not seeds: break
                 w = r.choice(seeds)
-                if r.random() < .5: add(r.choice(a.prefixes.split(",")).strip() + w, st, check_shape=False)
-                else: add(w + r.choice(a.suffixes.split(",")).strip(), st, check_shape=False)
+                if r.random() < .5: add(r.choice(a.prefixes.split(",")).strip() + w, st, check_shape=False, brand=w)
+                else:
+                    suf = r.choice(a.suffixes.split(",")).strip()
+                    add(w + suf, st, check_shape=False, brand=w if suf in DOMAIN_ONLY else None)
             else:
                 sys.exit(f"unknown style: {st}")
     json.dump(out, open(a.out, "w"), indent=1)

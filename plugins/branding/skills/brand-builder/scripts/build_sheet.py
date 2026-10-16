@@ -9,6 +9,10 @@ Usage:
 themselves (for example Claude Artifacts). Stars and hidden names are kept in the viewer's
 browser (localStorage key "brand-builder-sheet"); the "Copy my stars" button is how the
 user hands their picks back.
+
+Names on a prefixed or suffixed domain (scored with "b" and "via") show the brand big and the
+full domain under it ("Jova", then "on heyjova.com"), so the reader sees the proposed name,
+not the domain label. Length, search and the copied star list use the brand.
 """
 import argparse, html, json
 
@@ -42,6 +46,8 @@ section h2{font-family:var(--font-display);font-weight:600;font-size:21px;margin
 .nm{font-family:var(--font-display);font-weight:600;font-size:25px;letter-spacing:-.015em;line-height:1.1;overflow-wrap:anywhere}
 .nm small{font-family:var(--font-mono);font-weight:400;font-size:12px;color:var(--muted);margin-left:1px}
 .say{font-family:var(--font-mono);font-size:12.5px;color:var(--muted)}
+.dom{font-family:var(--font-mono);font-size:12.5px;color:var(--fg);overflow-wrap:anywhere}
+.dom i{font-style:normal;color:var(--muted)}
 .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
 .meta span{border:1px solid var(--line);border-radius:999px;padding:1px 7px}
 .meta b{font-weight:500;color:var(--fg)}
@@ -64,18 +70,23 @@ details.stars .tile{background:var(--bg)}
 JS = r"""
 const ENDN={plain:"plain",io:"-io",ly:"-ly",made:"made-up ending",one:"+1 letter",hq:"+HQ",two:"+2 letters"};
 const TIER={best:0,good:1,okay:2,hard:3};
-let fTld="all",fEnd="all",fSyl="all",fSo=0,fLo=0,fSort="rec",len="all",q="",starOnly=false,showHidden=false;
+let fFit="all",fTld="all",fEnd="all",fSyl="all",fSo=0,fLo=0,fSort="rec",len="all",q="",starOnly=false,showHidden=false;
 let st={stars:{},hidden:{}};
 try{st=JSON.parse(localStorage.getItem(KEY)||"null")||st}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const BY={};for(const d of DATA)BY[d.n]=d;
+const B=d=>d.b||d.n;
+const label=d=>d.via?(d.d||B(d))+" ("+d.dom+")":d.dom;
 function tile(d){
   const t=el("article","tile"+(st.stars[d.n]?" star":""));
-  const nm=el("div","nm",d.d||d.n);if(!d.d||d.d.toLowerCase()===d.n)nm.append(el("small",null,"."+(d.dom||"").split(".").pop()));
-  t.append(nm,el("div","say",d.gone?"No longer in the list. Check the domain again.":(d.dom+" · "+d.s)));
+  const nm=el("div","nm",d.d||d.n);if(!d.via&&(!d.d||d.d.toLowerCase()===d.n))nm.append(el("small",null,"."+(d.dom||"").split(".").pop()));
+  t.append(nm);
+  if(d.gone)t.append(el("div","say","No longer in the list. Check the domain again."));
+  else if(d.via){const dm=el("div","dom");dm.append(el("i",null,"on "),d.dom);t.append(dm,el("div","say",d.s))}
+  else t.append(el("div","say",d.dom+" · "+d.s));
   if(!d.gone){const m=el("div","meta");const a1=el("span");a1.append("sound ",el("b",null,d.so+"/5"));const a2=el("span");a2.append("look ",el("b",null,d.lo+"/5"));
-    m.append(...(d.free||[]).map(x=>el("span","tl","."+x)),a1,a2,el("span",null,d.sy+" syllables"),el("span",null,d.n.length+" letters"),el("span",null,ENDN[d.e]||""));t.append(m)}
+    m.append(...(d.free||[]).map(x=>el("span","tl","."+x)),a1,a2,el("span",null,d.sy+" syllables"),el("span",null,B(d).length+" letters"),...(d.via?[el("span",null,d.aff+" in domain")]:[]),el("span",null,ENDN[d.e]||""));t.append(m)}
   const a=el("div","acts");
   const sb=el("button",st.stars[d.n]?"on":"",st.stars[d.n]?"★ Starred":"☆ Star");sb.setAttribute("aria-pressed",!!st.stars[d.n]);
   sb.onclick=()=>{st.stars[d.n]?delete st.stars[d.n]:st.stars[d.n]=1;save();render()};
@@ -90,12 +101,12 @@ function render(){
   if(starred.length){
     const det=el("details","stars");det.open=!st.starsClosed;det.ontoggle=()=>{st.starsClosed=!det.open;save()};
     const sm=el("summary");sm.append(el("span","h2","Your stars · "+starred.length),el("span","sub","Click to open or close"));
-    const cp=el("button","tog","Copy my stars");cp.style.margin="0 0 12px";const txt=starred.map(d=>d.dom).join(", ");
+    const cp=el("button","tog","Copy my stars");cp.style.margin="0 0 12px";const txt=starred.map(label).join(", ");
     cp.onclick=async()=>{try{await navigator.clipboard.writeText(txt);cp.textContent="Copied "+starred.length+" names"}catch(e){cp.textContent="Select the list below"}setTimeout(()=>cp.textContent="Copy my stars",1600)};
     const g=el("div","grid");for(const d of starred)g.append(tile(d));det.append(sm,cp,el("p","plain",txt),g);root.append(det);
   }
-  let items=DATA.filter(d=>(len==="all"||d.n.length==+len)&&(!q||d.n.includes(q)||(d.d||"").toLowerCase().includes(q))&&(!starOnly||st.stars[d.n])&&(showHidden||!st.hidden[d.n])&&(fTld==="all"||(d.free||[]).includes(fTld))&&(fEnd==="all"||d.e===fEnd)&&(fSyl==="all"||(fSyl==="4"?d.sy>=4:d.sy==+fSyl))&&d.so>=fSo&&d.lo>=fLo);
-  const S={so:(a,b)=>b.so-a.so||b.lo-a.lo,lo:(a,b)=>b.lo-a.lo||b.so-a.so,both:(a,b)=>(b.so+b.lo)-(a.so+a.lo),sy:(a,b)=>a.sy-b.sy||b.so-a.so,len:(a,b)=>a.n.length-b.n.length||b.so-a.so,az:(a,b)=>a.n.localeCompare(b.n)};
+  let items=DATA.filter(d=>(len==="all"||B(d).length==+len)&&(!q||d.n.includes(q)||B(d).includes(q)||(d.d||"").toLowerCase().includes(q))&&(fFit==="all"||(fFit==="exact"?!d.via:d.via===fFit))&&(!starOnly||st.stars[d.n])&&(showHidden||!st.hidden[d.n])&&(fTld==="all"||(d.free||[]).includes(fTld))&&(fEnd==="all"||d.e===fEnd)&&(fSyl==="all"||(fSyl==="4"?d.sy>=4:d.sy==+fSyl))&&d.so>=fSo&&d.lo>=fLo);
+  const S={so:(a,b)=>b.so-a.so||b.lo-a.lo,lo:(a,b)=>b.lo-a.lo||b.so-a.so,both:(a,b)=>(b.so+b.lo)-(a.so+a.lo),sy:(a,b)=>a.sy-b.sy||b.so-a.so,len:(a,b)=>B(a).length-B(b).length||b.so-a.so,az:(a,b)=>B(a).localeCompare(B(b))||a.n.localeCompare(b.n)};
   if(S[fSort])items.sort(S[fSort]);
   const s=el("section");s.append(el("h2",null,"All names · "+items.length),el("p","sub",fSort==="rec"?"Recommended order: best sounding first.":"Sorted by your choice above."));
   const g=el("div","grid");for(const d of items){shown++;g.append(tile(d))}s.append(g);root.append(s);
@@ -105,8 +116,9 @@ document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{len=b.dataset
 document.getElementById("q").oninput=e=>{q=e.target.value.trim().toLowerCase();render()};
 for(const [id,fn] of [["starOnly",v=>starOnly=v],["showHidden",v=>showHidden=v]]){const b=document.getElementById(id);b.onclick=()=>{const v=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",v);fn(v);render()}}
 if(document.getElementById("fTld"))document.getElementById("fTld").onchange=e=>{fTld=e.target.value;render()};
+if(document.getElementById("fFit"))document.getElementById("fFit").onchange=e=>{fFit=e.target.value;render()};
 for(const [id,set] of [["fEnd",v=>fEnd=v],["fSyl",v=>fSyl=v],["fSo",v=>fSo=+v],["fLo",v=>fLo=+v],["fSort",v=>fSort=v]])document.getElementById(id).onchange=e=>{set(e.target.value);render()};
-document.getElementById("reset").onclick=()=>{fTld="all";if(document.getElementById("fTld"))document.getElementById("fTld").value="all";fEnd="all";fSyl="all";fSo=0;fLo=0;fSort="rec";len="all";q="";starOnly=false;showHidden=false;
+document.getElementById("reset").onclick=()=>{fTld="all";fFit="all";if(document.getElementById("fFit"))document.getElementById("fFit").value="all";if(document.getElementById("fTld"))document.getElementById("fTld").value="all";fEnd="all";fSyl="all";fSo=0;fLo=0;fSort="rec";len="all";q="";starOnly=false;showHidden=false;
   for(const [id,v] of [["fEnd","all"],["fSyl","all"],["fSo","0"],["fLo","0"],["fSort","rec"],["q",""]])document.getElementById(id).value=v;
   document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.len==="all"));
   for(const id of ["starOnly","showHidden"])document.getElementById(id).setAttribute("aria-pressed","false");render()};
@@ -125,13 +137,16 @@ def main():
     a = ap.parse_args()
     data = json.load(open(a.input))
     e = html.escape
-    lens = sorted({len(d["n"]) for d in data})
+    lens = sorted({len(d.get("b") or d["n"]) for d in data})
     tlds = []
     for d in data:
         for x in d.get("free", []):
             if x not in tlds: tlds.append(x)
     tld_select = ('<label class="fl">Domain <select id="fTld"><option value="all">Any free domain</option>'
                   + "".join(f'<option value="{e(x)}">.{e(x)} free</option>' for x in tlds) + "</select></label>") if len(tlds) > 1 else ""
+    fit_select = ('<label class="fl">Domain shape <select id="fFit"><option value="all">Any</option><option value="exact">Name is the domain</option>'
+                  '<option value="prefix">Prefix in domain (heyname)</option><option value="suffix">Suffix in domain (namehq)</option></select></label>'
+                  ) if any(d.get("via") for d in data) else ""
     seg = '<button data-len="all" aria-pressed="true">All</button>' + "".join(
         f'<button data-len="{n}" aria-pressed="false">{n} letters</button>' for n in lens)
     intro = a.intro or (f"{len(data)} names with at least one free domain" + (f" when checked on {a.date}" if a.date else "")
@@ -148,7 +163,7 @@ def main():
 <span class="count" id="count"></span>
 <div class="row2">
 <label class="fl">Ending <select id="fEnd"><option value="all">Any ending</option><option value="plain">Plain made-up</option><option value="io">Ends in -io</option><option value="ly">Ends in -ly</option><option value="made">-ix, -um, -ena, -ivo</option><option value="one">Plus one letter</option><option value="hq">Plus HQ</option><option value="two">Plus two letters</option></select></label>
-{tld_select}<label class="fl">Syllables <select id="fSyl"><option value="all">Any</option><option value="2">2</option><option value="3">3</option><option value="4">4 or more</option></select></label>
+{tld_select}{fit_select}<label class="fl">Syllables <select id="fSyl"><option value="all">Any</option><option value="2">2</option><option value="3">3</option><option value="4">4 or more</option></select></label>
 <label class="fl">Sound <select id="fSo"><option value="0">Any</option><option value="4">4 and up</option><option value="5">5 only</option></select></label>
 <label class="fl">Look <select id="fLo"><option value="0">Any</option><option value="4">4 and up</option><option value="5">5 only</option></select></label>
 <label class="fl">Sort <select id="fSort"><option value="rec">Recommended</option><option value="so">Best sounding</option><option value="lo">Best looking</option><option value="both">Sound plus look</option><option value="sy">Fewest syllables</option><option value="len">Shortest</option><option value="az">A to Z</option></select></label>
@@ -156,7 +171,7 @@ def main():
 </div>
 </div>
 <div id="list"></div>
-<p class="note">Green tags show which of the checked domains are free for each name. Availability came from a registry lookup and can change at any time; nothing is reserved, and some free names are premium priced. Sound and look scores are judgements, not measurements.</p>
+<p class="note">Green tags show which of the checked domains are free for each name. Where a tile says "on" a domain, the big word is the proposed name and the prefix or suffix lives only in the domain. Availability came from a registry lookup and can change at any time; nothing is reserved, and some free names are premium priced. Sound and look scores are judgements, not measurements.</p>
 </div>
 <script>
 const KEY="brand-builder-sheet";
