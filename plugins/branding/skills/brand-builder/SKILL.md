@@ -108,8 +108,8 @@ big with "on heyjova.com" under it, and length, sound and syllables are judged o
 `gen_names.py` records this as `brand`; for names you add by hand, set `"brand"` on the record
 (or style them `affix` or `pair` and the scorer strips the known prefixes and the domain-only
 suffixes hq, labs, app, hub, kit and ai). Every tile carries a domain tag so pure domains stand
-out: a solid "pure .com" (or "pure .ai", "pure .me") when the name itself is the domain, a
-dashed "with···.com" or "···hq.com" when the affix lives only in the domain. A "Domain shape"
+out: one solid tag per free ending the user picked ("pure .com", "pure .ai", "pure .me") when
+the name itself is the domain, a dashed "with···.com" or "···hq.com" when the affix lives only in the domain. A "Domain shape"
 filter shows one kind at a time. "-ly" and "-io" stay part of the name (Junoly). Say
 it the same way in chat and on the shortlist: "Jova (heyjova.com)", never "HeyJova".
 

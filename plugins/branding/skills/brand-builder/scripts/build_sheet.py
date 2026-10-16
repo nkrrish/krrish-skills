@@ -48,7 +48,8 @@ section h2{font-family:var(--font-display);font-weight:600;font-size:21px;margin
 .say{font-family:var(--font-mono);font-size:12.5px;color:var(--muted)}
 .dom{font-family:var(--font-mono);font-size:12.5px;color:var(--fg);overflow-wrap:anywhere}
 .dom i{font-style:normal;color:var(--muted)}
-.fit{align-self:flex-start;font-family:var(--font-mono);font-size:11.5px;font-weight:500;border-radius:999px;padding:1px 8px;margin-bottom:6px;border:1px solid var(--accent)}
+.fits{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.fit{font-family:var(--font-mono);font-size:11.5px;font-weight:500;border-radius:999px;padding:1px 8px;border:1px solid var(--accent)}
 .fit.pure{background:var(--accent);color:var(--card)}
 .fit.aff{color:var(--muted);border-color:var(--line);border-style:dashed}
 .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
@@ -84,14 +85,16 @@ const label=d=>d.via?(d.d||B(d))+" ("+d.dom+")":d.dom;
 function tile(d){
   const t=el("article","tile"+(st.stars[d.n]?" star":""));
   const tld="."+(d.dom||"").split(".").pop();
-  if(!d.gone)t.append(el("span","fit "+(d.via?"aff":"pure"),d.via?(d.via==="prefix"?d.aff+"\u00b7\u00b7\u00b7"+tld:"\u00b7\u00b7\u00b7"+d.aff+tld):"pure "+tld));
+  if(!d.gone){const f=el("div","fits");
+    for(const x of (d.free&&d.free.length?d.free:[tld.slice(1)]))f.append(el("span","fit "+(d.via?"aff":"pure"),d.via?(d.via==="prefix"?d.aff+"\u00b7\u00b7\u00b7."+x:"\u00b7\u00b7\u00b7"+d.aff+"."+x):"pure ."+x));
+    t.append(f)}
   const nm=el("div","nm",d.d||d.n);if(!d.via)nm.append(el("small",null,tld));
   t.append(nm);
   if(d.gone)t.append(el("div","say","No longer in the list. Check the domain again."));
   else if(d.via){const dm=el("div","dom");dm.append(el("i",null,"on "),d.dom);t.append(dm,el("div","say",d.s))}
   else t.append(el("div","say",d.dom+" · "+d.s));
   if(!d.gone){const m=el("div","meta");const a1=el("span");a1.append("sound ",el("b",null,d.so+"/5"));const a2=el("span");a2.append("look ",el("b",null,d.lo+"/5"));
-    m.append(...(d.free||[]).map(x=>el("span","tl","."+x)),a1,a2,el("span",null,d.sy+" syllables"),el("span",null,B(d).length+" letters"),...(d.via?[el("span",null,d.aff+" in domain")]:[]),el("span",null,ENDN[d.e]||""));t.append(m)}
+    m.append(a1,a2,el("span",null,d.sy+" syllables"),el("span",null,B(d).length+" letters"),...(d.via?[el("span",null,d.aff+" in domain")]:[]),el("span",null,ENDN[d.e]||""));t.append(m)}
   const a=el("div","acts");
   const sb=el("button",st.stars[d.n]?"on":"",st.stars[d.n]?"★ Starred":"☆ Star");sb.setAttribute("aria-pressed",!!st.stars[d.n]);
   sb.onclick=()=>{st.stars[d.n]?delete st.stars[d.n]:st.stars[d.n]=1;save();render()};
@@ -176,7 +179,7 @@ def main():
 </div>
 </div>
 <div id="list"></div>
-<p class="note">Green tags show which of the checked domains are free for each name. A solid "pure .com" tag means the name itself is the domain. A dashed tag such as "with···.com" or "···hq.com" means the big word is the proposed name and the prefix or suffix lives only in the domain. Availability came from a registry lookup and can change at any time; nothing is reserved, and some free names are premium priced. Sound and look scores are judgements, not measurements.</p>
+<p class="note">The tags above each name show every checked domain that is free for it. A solid "pure .com" tag means the name itself is the domain. A dashed tag such as "with···.com" or "···hq.com" means the big word is the proposed name and the prefix or suffix lives only in the domain. Availability came from a registry lookup and can change at any time; nothing is reserved, and some free names are premium priced. Sound and look scores are judgements, not measurements.</p>
 </div>
 <script>
 const KEY="brand-builder-sheet";
