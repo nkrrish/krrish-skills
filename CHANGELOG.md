@@ -26,6 +26,25 @@ New skill, `brand-builder`: name finding and vetting before the logo.
 Also bundles `canvas-design` (Apache-2.0) and `design-taste-frontend` (MIT) under their own
 licences; see NOTICE.
 
+## branding 1.1.0
+
+Four tools from [logo-design-skill](https://github.com/kaankiziltug/logo-design-skill)
+(MIT), wired into the existing phases. The icon-mark default and workflow are unchanged.
+
+- `search_library.py` — category conventions from ~1,400 classified real logos, used in
+  Phase 1.5 so at least one concept departs from them. The catalog ships; the SVGs
+  themselves are third-party trademarks, so they are downloaded on demand into
+  `~/.cache/logo-designer/library-svg` from a pinned commit and never bundled.
+  `search_library.py --download-all` caches the whole library (~11 MB) for offline use.
+- `svg_audit.py` — source-level checks alongside `audit.sh`: live text, rasters, filters,
+  unexpanded strokes, near-miss angles, tiny sub-paths, centring. Advisory, always exits 0.
+- `preview_sheet.py` — full HTML test sheet for Phase 3: size ladder, pixel test, five
+  backgrounds, squint/mirror/rotate, context mockups, and a shelf test beside real logos.
+- `export_variants.py` — one-colour black/white/brand SVGs, square and app-icon masters, and
+  with `--web-icons` a real `favicon.ico`, apple-touch, maskable and manifest set.
+- Supporting `svglib.py` and `render_png.py` (renderer fallback chain, HTML screenshots).
+- All Python 3 standard library; no new required dependencies.
+
 ## media 1.0.0
 
 Initial release. One skill, `higgsfield`, for the Higgsfield Open API on the user's own key.

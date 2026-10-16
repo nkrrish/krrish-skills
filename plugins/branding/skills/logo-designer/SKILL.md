@@ -105,6 +105,19 @@ Do this before drawing anything, and state it to the user.
 1. **Identify the domain and open `references/anti-cliche.md`.** Write down the banned list for
    this product. Those marks are now unavailable in every concept — including the one the brief
    implicitly asks for. If the existing logo you are replacing *is* the cliché, say so.
+
+   Then measure what the category already looks like:
+
+   ```bash
+   python3 <path-to-skill>/scripts/search_library.py --industry <domain> --summary
+   ```
+
+   It summarises ~1,400 classified real logos — the mark types, colours and techniques the
+   category repeats. Those are its conventions: at least one concept should depart from them.
+   `--list-values` shows valid industries; `--technique negative-space --exemplary` finds
+   teaching examples of one technique. `--format paths` downloads the matching SVGs (cached in
+   `~/.cache/logo-designer/library-svg`) for studying structure; `--download-all` caches all
+   ~11 MB at once for offline use. They are other companies' trademarks — never trace or adapt them.
 2. **Write one conceptual seed per concept** — a single sentence naming the specific idea that
    concept encodes, which would be false of a competitor. Seeds are written before SVG, never
    reverse-engineered afterwards.
@@ -254,6 +267,18 @@ python3 <path-to-skill>/scripts/similarity.py check logos/concepts/   # prior ar
 
    A `TOO ALIKE` pair means the round is one idea wearing five hats: regenerate, don't recolour.
 
+   Then check the markup itself:
+
+   ```bash
+   python3 <path-to-skill>/scripts/svg_audit.py logos/concepts/*.svg
+   ```
+
+   `svg_audit.py` reads the SVG source rather than the pixels: live text, embedded rasters,
+   filters, colour count, unexpanded strokes, lines a degree or two off a clean angle, sub-paths
+   too small to survive, off-centre margins, and anchor count against the library median. It is
+   advisory and always exits 0 — `audit.sh` stays the gate. Fix its WARNs or say why the choice
+   is deliberate.
+
    `similarity.py` checks each mark against ~3,450 real brand marks (CC0 `simple-icons`).
    Anything under 0.055 must be reworked; 0.055–0.085 needs a look by eye. First run needs
    `similarity.py build` (~45s, cached to `~/.cache/logo-designer`). It is a prior-art smoke
@@ -310,6 +335,18 @@ After each round:
   thickening them; if fine detail muddies, propose removing it. Catching this here saves rounds.
 - Between two iterations that read the same at 32px, keep the simpler one
 - Test monochrome at least once — if the mark only works in color, the form is weak
+- Before calling a direction final, generate the full test sheet and look at it:
+
+  ```bash
+  python3 <path-to-skill>/scripts/preview_sheet.py logos/iterations/iteration-N.svg \
+    --name "Project" --brand-color "#0F7C80" --refs-industry <domain> -o logos/test-sheet.html
+  ```
+
+  Size ladder, enlarged 16/32/48 px renders, light/dark/brand/photo/pattern backgrounds,
+  greyscale, one-colour, squint blur, mirror and 180° rotation, browser-tab/app-icon/header
+  mockups, and a **shelf test** beside real logos from the same industry (pass competitors'
+  SVGs with `--refs` instead when you have them). Screenshot it to read it:
+  `python3 <path-to-skill>/scripts/render_png.py logos/test-sheet.html -o /tmp/sheet.png --width 1400 --height 3000`.
 
 ## Phase 4: Export
 
@@ -345,9 +382,23 @@ bash <path-to-skill>/scripts/snippets.sh logos/export/logo.svg logos/export/ MyL
    background, a **monochrome mask** rule for menu-bar/inverted use, the favicon `<head>` block,
    web-manifest entries, and the Swift template snippet. Point the user at it explicitly.
 
-6. List the exported files with their sizes.
-6. If the script reports no converter, relay its install instructions verbatim — they name real,
-   verified packages.
+6. **Write the variants and the web icon set:**
+
+```bash
+python3 <path-to-skill>/scripts/export_variants.py logos/export/icon.svg \
+  --mono "#0F7C80" --icon-bg "#0F7C80" --web-icons --title "Project" --out-dir logos/export/web
+```
+
+   (Use `logo.svg` when there is no separate icon.) Writes one-colour black, white and brand
+   SVGs, a padded square avatar master, `favicon.svg`, an app-icon tile, and with `--web-icons`
+   a real multi-size `favicon.ico`, `apple-touch-icon.png`, 192/512 icons, a **maskable** 512
+   with the mark inside the safe zone, `site.webmanifest` and `head-snippet.html`. If one-colour
+   output turns a cut-out into a blob, the master uses a fake white knockout — fix the master
+   rather than passing `--keep-white`.
+
+7. List the exported files with their sizes.
+8. If a script reports no converter, relay its install instructions verbatim — they name real,
+   verified packages. `render_png.py --which` shows which renderers are available.
 
 ## Phase 5: Repo integration (optional)
 

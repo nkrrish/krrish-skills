@@ -46,6 +46,14 @@ concept-5           0.191  0.365    3->2     1.56     56  FAIL counters close at
 - **`export.sh`** — PNG at 8 sizes, aspect-preserving, with blank-output detection.
 - **`snippets.sh`** — paste-ready handoff: inline SVG, React component, CSS data-URI,
   monochrome mask rule, favicon `<head>` block, web manifest, Swift menu-bar template.
+- **`svg_audit.py`** — the source-level counterpart to `audit.sh`: live text, rasters,
+  unexpanded strokes, near-miss angles, tiny sub-paths, centring.
+- **`preview_sheet.py`** — an HTML test sheet: size ladder, squint blur, five backgrounds,
+  context mockups, and a shelf test beside real logos from the same industry.
+- **`search_library.py`** — what a category's logos already look like, from ~1,400
+  classified real marks (SVGs fetched on demand, never bundled).
+- **`export_variants.py`** — one-colour variants plus a full web icon set: multi-size
+  `favicon.ico`, apple-touch, maskable PWA icon, manifest.
 
 It also refuses the obvious answer. A per-domain ban list makes the first idea unavailable
 (no equalizer bars for an audio product, no sparkles for AI, no shields for security), each
@@ -180,6 +188,8 @@ Logos, boards and other **output** you create with these skills are yours — ou
 derivative work of the tool. The copyleft applies to modified copies of the skills themselves.
 
 `branding` derives in part from [logo-designer-skill](https://github.com/neonwatty/logo-designer-skill)
-by Jeremy Watt (MIT), relicensed under GPL-3.0 as that licence permits. `media` adapts parts of
+by Jeremy Watt (MIT), relicensed under GPL-3.0 as that licence permits; its Python test, export
+and library-search tools come from [logo-design-skill](https://github.com/kaankiziltug/logo-design-skill)
+by kaankiziltug (MIT) the same way. `media` adapts parts of
 [higgsfield-ai/skills](https://github.com/higgsfield-ai/skills) by Higgsfield AI (MIT) the same
 way. See [NOTICE](NOTICE).
