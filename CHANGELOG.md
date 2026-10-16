@@ -14,6 +14,13 @@ claude plugin update <plugin>@krrish-skills   # restart required
   comes from the shortlist JSON, and anything missing is left off instead of showing meeting
   notes. Older meeting-style shortlist files still work.
 - `build_shortlist.py --example companion` prints a filled-in example for an AI companion app.
+## branding 1.2.3
+
+- The sheet's domain tags are register links for that exact domain, and the Register button
+  opens the best one (".com" first, then the user's other endings; for affixed names
+  hey, meet, hello, with and say first). The Copy button is gone. "+N more" expands in place.
+- `build_sheet.py --register-url` takes a link template with `{domain}`, for an affiliate
+  deep link.
 
 ## branding 1.2.2
 

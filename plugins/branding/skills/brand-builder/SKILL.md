@@ -111,7 +111,10 @@ suffixes hq, labs, app, hub, kit and ai). The sheet shows one tile per name with
 every free domain for it: a solid green tag per ending where the name itself is free (.com,
 .ai, .me), and a dashed tag per prefixed or suffixed domain ("hey···.com", "···hq.com"). Tiles
 are grouped by tier (Top picks, Good, Okay, Harsh), with sound and look as dot meters. A
-"Domain shape" filter shows one kind at a time. "-ly" and "-io" stay part of the name (Junoly). Say
+"Domain shape" filter shows one kind at a time. Every tag is a register link for that
+exact domain, and the Register button opens the first free one in the user's ending order, and for affixed names the friendliest prefix first (hey, meet, hello,
+with, say). `--register-url` takes a template with `{domain}`, so an affiliate deep link can
+replace the default Namecheap search. "-ly" and "-io" stay part of the name (Junoly). Say
 it the same way in chat and on the shortlist: "Jova (heyjova.com)", never "HeyJova".
 
 Keep iterating on the same sheet: add rounds at the top as "Like your picks", remove styles
