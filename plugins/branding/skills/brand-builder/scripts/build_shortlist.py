@@ -5,6 +5,14 @@ in-use mockups for each shortlisted name.
 Usage:
   build_shortlist.py shortlist.json --out shortlist.html [--audio audio] [--fragment]
   build_shortlist.py --example > shortlist.json      # print a filled-in example to start from
+  build_shortlist.py --example companion            # the same with a non-meeting product
+
+The in-use mockups (app window, phone, chat, social post) take every visible string from
+"product" (shared by all names) or the name's "inuse" (per name overrides): nav, item,
+itemMeta, action, cardTitle, cardItems, quoteBy, quote, notif, homeApps, chatChannel,
+chatPeople ([name, time] pairs), previewTitle, previewText, postChips, postEnd. Write them for
+the user's own product; anything left out is left off the mockup. Older shortlist files with
+meeting, minutes, people, planTitle, items and transcript still work.
 
 Recordings are linked as <audio>/<key>.mp3 (meant to sound) and <audio>/<key>__read.mp3
 (first read by a stranger), relative to the page; players appear only for files that exist.
@@ -18,11 +26,29 @@ import argparse, html, json, os, sys
 
 e = html.escape
 
+MEETING = {"name": "meeting notes",
+           "nav": ["Meetings", "Voice memos", "Plans", "Settings"],
+           "item": "Halden pricing call", "itemMeta": "32 min · recorded on this Mac · 4 people", "action": "Share",
+           "cardTitle": "The plan", "cardItems": ["Hold the price, add onboarding · Priya", "Send Halden the revised quote · Sam", "Book follow-up for the 24th · Mia"],
+           "quoteBy": "Priya · 12:04", "quote": "So if we hold the price but add onboarding, does that work for you?",
+           "notif": "The plan from Halden pricing call is ready", "homeApps": ["Calendar", "Mail"],
+           "chatChannel": "#team", "chatPeople": [["Priya Shah", "10:42"], ["Sam Kerr", "10:44"]],
+           "previewTitle": "Halden pricing call · notes by Sam", "previewText": "The plan: Hold the price, add onboarding, and 2 more.",
+           "postChips": [["MI", "Mia"], ["JO", "Jo"], ["YOU", "You"]], "postEnd": "no bot"}
+
+COMPANION = {"name": "AI companion",
+             "nav": ["Talk", "Journal", "Reminders", "Settings"],
+             "item": "Tuesday evening check-in", "itemMeta": "12 min · voice · with Juno", "action": "Save to journal",
+             "cardTitle": "What you said you'd try", "cardItems": ["Walk after lunch, no phone", "Text Maya back tonight", "Bed by 11, check in at 10:30"],
+             "quoteBy": "Juno · 9:41 pm", "quote": "That sounds like a lot to carry. Want to start with the part about work?",
+             "notif": "Juno: it's 10:30. How did the walk go?", "homeApps": ["Notes", "Health"],
+             "chatChannel": "Ana Ruiz", "chatPeople": [["Ana Ruiz", "21:12"], ["You", "21:15"]],
+             "previewTitle": "Journal · Tuesday", "previewText": "Felt calmer after talking it through. Three small things for tomorrow.",
+             "postChips": [], "postEnd": ""}
+
 EXAMPLE = {
   "title": "Name shortlist", "date": "16 Oct 2026",
-  "product": {"name": "meeting notes", "meeting": "Halden pricing call", "minutes": 32, "people": 4,
-              "planTitle": "The plan", "items": ["Hold the price, add onboarding · Priya", "Send Halden the revised quote · Sam", "Book follow-up for the 24th · Mia"],
-              "transcript": "So if we hold the price but add onboarding, does that work for you?"},
+  "product": MEETING,
   "names": [{
     "key": "trepil", "display": "trepil", "domain": "trepil.com", "status": ".com free on 16 Oct 2026", "pinned": True,
     "font": "Red Hat Display", "weight": 800, "tracking": -0.03, "mark": "three",
@@ -41,6 +67,12 @@ EXAMPLE = {
               "groundBg": "#5B3CC4", "groundFg": "#FFFFFF", "planBg": "#F4E04D", "planFg": "#17142B"}
   }]
 }
+
+EXAMPLES = {"meeting": EXAMPLE, "companion": {**EXAMPLE, "product": COMPANION, "names": [{**EXAMPLE["names"][0], "inuse": {
+    "headline": "Someone to\ntalk it through.", "tag": "A companion that remembers",
+    "chat": "how are you sleeping better lately? you seem lighter", "reply": "honestly trepil. I talk things through with it at night. this was Tuesday",
+    "caption": "Some days are a lot. trepil listens, remembers what matters to you and checks in when it counts.",
+    "groundBg": "#5B3CC4", "groundFg": "#FFFFFF", "planBg": "#F4E04D", "planFg": "#17142B"}}]}}
 
 
 def L(h):
@@ -94,36 +126,68 @@ NA = {"apps": "Not checked.", "appsLevel": "na", "google": "Not checked.", "goog
       "ownabilityWhy": "Not researched.", "meanings": "", "social": "Not checked.", "sources": []}
 
 
+def legacy(prod):
+    """Map the older meeting-only product keys onto the generic ones."""
+    p = dict(prod)
+    if "meeting" in p and "item" not in p: p["item"] = p["meeting"]
+    if "item" in p and "itemMeta" not in p and ("minutes" in p or "people" in p):
+        p["itemMeta"] = f'{p.get("minutes", 30)} min · recorded on this Mac · {p.get("people", 3)} people'
+    if "planTitle" in p and "cardTitle" not in p: p["cardTitle"] = p["planTitle"]
+    if "items" in p and "cardItems" not in p: p["cardItems"] = p["items"]
+    if "transcript" in p and "quote" not in p: p["quote"] = p["transcript"]
+    return p
+
+
 def inuse(n, C, prod, mk):
+    """Every visible string comes from the product (or the name's inuse overrides): write the copy
+    for the user's own product. Missing pieces are left out rather than filled with another product."""
     u = n["inuse"]; P, A, K, Lc = C["primary"][1], C["accent"][1], C["ink"][1], C["light"][1]
+    g = lambda k, d="": u.get(k, prod.get(k, d))
     onP = best_text(P, ["#FFFFFF", K, Lc])
     gb, gf = u.get("groundBg", P), u.get("groundFg", best_text(u.get("groundBg", P), ["#FFFFFF", K]))
     pb, pf = u.get("planBg", A), u.get("planFg", best_text(u.get("planBg", A), [K, "#FFFFFF"]))
     font, w, ls, name, dom = n["font"], n.get("weight", 700), n.get("tracking", -0.02), n["display"], n["domain"]
     st = (f"--bp:{P};--bop:{onP};--ba:{A};--bg2:{gb};--bog:{gf};--bpa:{Lc};--bi:{K};--bpl:{pb};--bopl:{pf};--bf:'{font}',sans-serif")
     wm = f'<span style="font-family:\'{font}\',sans-serif;font-weight:{w};letter-spacing:{ls}em;color:{K};font-size:20px;line-height:1">{e(name)}</span>'
-    items = prod.get("items", []); pt = u.get("planTitle", prod.get("planTitle", "The plan"))
-    meet = u.get("meeting", prod.get("meeting", "Team sync"))
-    pl = "".join(f"<li>{e(x)}</li>" for x in items)
+    nav = g("nav", [])
+    navh = "".join((f"<b>{e(x)}</b>" if i == 0 else f"<span>{e(x)}</span>") for i, x in enumerate(nav))
+    item, meta, action = g("item"), g("itemMeta"), g("action")
+    ct, ci = g("cardTitle"), g("cardItems", [])
+    card = f'<div class="plan"><b>{e(ct)}</b><ol>{"".join(f"<li>{e(x)}</li>" for x in ci)}</ol></div>' if ct or ci else ""
+    quote = f'<div class="tr"><span>{e(g("quoteBy"))}</span><p>{e(g("quote"))}</p></div>' if g("quote") else ""
+    btn = f"<button>{e(action)}</button>" if action else ""
+    homes = "".join(f'<div><div class="app g"></div><span>{e(x)}</span></div>' for x in g("homeApps", []))
+    people = g("chatPeople", [])
+    initials = lambda nm: "".join(w[0] for w in nm.split()[:2]).upper() or "?"
+    def msg(i, text, extra=""):
+        if i >= len(people) or not text: return ""
+        nm, tm = (people[i] + ["", ""])[:2]
+        return f'<div class="msg"><div class="av{" b" if i else ""}">{e(initials(nm))}</div><div><b>{e(nm)}</b> <small>{e(tm)}</small><p>{e(text)}</p>{extra}</div></div>'
+    prev = (f'<div class="unf"><div class="bar"></div><div><small>{e(name)} · {e(dom)}</small><b>{e(g("previewTitle"))}</b>'
+            f'<p>{e(g("previewText"))}</p></div></div>') if g("previewTitle") else ""
+    chat = (f'<div class="chat"><div class="ch">{e(g("chatChannel"))}</div>{msg(0, u.get("chat", ""))}{msg(1, u.get("reply", ""), prev)}</div>'
+            if people and u.get("chat") else "")
+    notif = f'<div class="notif"><div class="ic">{mk(onP, A, 18)}</div><div><b>{e(name)}</b><p>{e(g("notif"))}</p></div></div>' if g("notif") else ""
     head = "".join(f"<span>{e(x)}</span>" for x in u.get("headline", name).split("\n"))
-    first = items[0].split(" · ")[0] if items else ""
-    return f'''<details class="inuse" open><summary>In use · app, phone, team chat, social</summary>
+    chips = g("postChips", [])
+    seats = ""
+    if chips:
+        end = f'<div class="empty">{mk(gf, gf, 30)}<em>{e(g("postEnd"))}</em></div>' if g("postEnd") else ""
+        seats = '<div class="seats">' + "".join(f"<div><span>{e(a)}</span>{e(b)}</div>" for a, b in chips) + end + "</div>"
+    return f'''<details class="inuse" open><summary>In use · app, phone, chat, social</summary>
 <div class="iu" style="{st}">
 <div class="win"><div class="wbar"><i></i><i></i><i></i><span>{e(dom)}</span></div>
-<div class="wbody"><aside><div class="lk">{mk(K, A, 22)}{wm}</div><nav><b>Meetings</b><span>Voice memos</span><span>Plans</span><span>Settings</span></nav></aside>
-<main><div class="mt"><div><h4>{e(meet)}</h4><p>{prod.get("minutes", 30)} min · recorded on this Mac · {prod.get("people", 3)} people</p></div><button>Share</button></div>
-<div class="plan"><b>{e(pt)}</b><ol>{pl}</ol></div>
-<div class="tr"><span>Priya · 12:04</span><p>{e(prod.get("transcript", ""))}</p></div></main></div></div>
+<div class="wbody"><aside><div class="lk">{mk(K, A, 22)}{wm}</div><nav>{navh}</nav></aside>
+<main><div class="mt"><div><h4>{e(item)}</h4><p>{e(meta)}</p></div>{btn}</div>
+{card}
+{quote}</main></div></div>
 <div class="side">
-<div class="phone"><div class="notif"><div class="ic">{mk(onP, A, 18)}</div><div><b>{e(name)}</b><p>{e(pt)} from {e(meet)} is ready</p></div></div>
-<div class="home"><div><div class="app">{mk(onP, A, 34)}</div><span>{e(name)}</span></div><div><div class="app g"></div><span>Calendar</span></div><div><div class="app g"></div><span>Mail</span></div></div></div>
-<div class="chat"><div class="ch">#team</div>
-<div class="msg"><div class="av">PS</div><div><b>Priya Shah</b> <small>10:42</small><p>{e(u.get("chat", ""))}</p></div></div>
-<div class="msg"><div class="av b">SK</div><div><b>Sam Kerr</b> <small>10:44</small><p>{e(u.get("reply", ""))}</p>
-<div class="unf"><div class="bar"></div><div><small>{e(name)} · {e(dom)}</small><b>{e(meet)} · notes by Sam</b><p>{e(pt)}: {e(first)}, and {max(0, len(items) - 1)} more.</p></div></div></div></div></div>
+<div class="phone">{notif}
+<div class="home"><div><div class="app">{mk(onP, A, 34)}</div><span>{e(name)}</span></div>{homes}</div></div>
+{chat}
 </div>
 <div class="post"><div class="ph"><div class="pa">{mk(onP, A, 18)}</div><b>{e(name)}</b></div>
-<div class="pimg"><div class="hl">{head}</div><div class="seats"><div><span>MI</span>Mia</div><div><span>JO</span>Jo</div><div><span>YOU</span>You</div><div class="empty">{mk(gf, gf, 30)}<em>no bot</em></div></div></div>
+<div class="pimg"><div class="hl">{head}</div>{seats}</div>
 <p class="cap"><b>{e(name)}</b> {e(u.get("caption", ""))}</p></div>
 </div></details>'''
 
@@ -201,7 +265,7 @@ a:focus-visible,summary:focus-visible{outline:2px solid var(--fg);outline-offset
 
 
 def build(spec, audio_dir, page_dir):
-    prod = spec.get("product", {})
+    prod = legacy(spec.get("product", {}))
     names = spec["names"]
     pinned = [n for n in names if n.get("pinned")]
     rest = sorted([n for n in names if not n.get("pinned")],
@@ -263,9 +327,10 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("input", nargs="?"); ap.add_argument("--out")
     ap.add_argument("--audio", default="audio"); ap.add_argument("--fragment", action="store_true")
-    ap.add_argument("--example", action="store_true")
+    ap.add_argument("--example", nargs="?", const="meeting", choices=sorted(EXAMPLES),
+                    help="print a filled-in example: meeting (default) or companion")
     a = ap.parse_args()
-    if a.example: print(json.dumps(EXAMPLE, indent=1, ensure_ascii=False)); return
+    if a.example: print(json.dumps(EXAMPLES[a.example], indent=1, ensure_ascii=False)); return
     if not a.input or not a.out: ap.error("give shortlist.json and --out")
     spec = json.load(open(a.input))
     head, body = build(spec, a.audio, os.path.dirname(os.path.abspath(a.out)))

@@ -7,6 +7,14 @@ claude plugin marketplace update krrish-skills
 claude plugin update <plugin>@krrish-skills   # restart required
 ```
 
+## branding 1.2.4
+
+- The shortlist's in-use mockups now fit any product. Every visible string (nav, main item,
+  key card, quote, notification, home screen apps, chat people, link preview, post chips)
+  comes from the shortlist JSON, and anything missing is left off instead of showing meeting
+  notes. Older meeting-style shortlist files still work.
+- `build_shortlist.py --example companion` prints a filled-in example for an AI companion app.
+
 ## branding 1.2.2
 
 - Names on a prefixed or suffixed domain now show the proposed brand, not the domain label: the
