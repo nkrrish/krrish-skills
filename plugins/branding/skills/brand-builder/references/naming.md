@@ -3,8 +3,9 @@
 ## Defaults when the user does not say
 
 - Length: 5 to 8 letters, shorter is better. Eight is the ceiling for coined names.
-- Domain: the exact `.com` free, or a liked prefix or suffix plus the name on `.com`.
-- Avoid `.ai` unless the user asks for it.
+- Domains: check only the TLDs the user picked. If they do not say, check `.com` and ask
+  whether `.ai`, `.app`, `.io` or others matter. A liked prefix or suffix plus the name on
+  their must-have TLD also counts.
 - Lowercase wordmark is fine; check whether the user wants the name always lowercase.
 
 ## Styles (generate several at once)

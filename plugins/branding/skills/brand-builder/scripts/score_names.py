@@ -2,9 +2,12 @@
 """Score free names for sound, look, syllables and ending, ready for the sheet.
 
 Usage:
-  score_names.py checked.json --out scored.json [--ratings ratings.json] [--all]
+  score_names.py checked.json --out scored.json [--tlds com,ai,app] [--require com]
+                 [--ratings ratings.json] [--all]
 
-Keeps only names whose status is "free" unless --all. A ratings file overrides the
+Groups the per-TLD results by name. A name is kept when at least one of the checked TLDs is
+free (or the --require TLD is free), unless --all. "free" lists the free TLDs in the order
+given by --tlds (default: the order they were checked), and "dom" is the first of them. A ratings file overrides the
 heuristics for names you have judged by ear:
   {"vamlin": {"sound": 5, "look": 4, "tier": "best", "say": "VAM-lin"}}
 Tiers: best, good, okay, hard. Without a rating the tier comes from the scores.
@@ -76,22 +79,31 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("input"); ap.add_argument("--out", required=True)
     ap.add_argument("--ratings"); ap.add_argument("--all", action="store_true")
+    ap.add_argument("--tlds", help="preference order of TLDs, e.g. com,ai,app")
+    ap.add_argument("--require", help="keep only names where this TLD is free, e.g. com")
     a = ap.parse_args()
     data = json.load(open(a.input))
     rat = json.load(open(a.ratings)) if a.ratings else {}
-    out, seen = [], set()
+    order = [t.strip().lstrip(".") for t in a.tlds.split(",")] if a.tlds else []
+    groups = {}
     for r in data:
-        if not a.all and r.get("status") not in (None, "free"): continue
         n = r["name"].lower()
-        if n in seen: continue
-        seen.add(n)
+        g = groups.setdefault(n, {"rec": r, "st": {}})
+        tld = r.get("tld") or (r.get("domain", n + ".com").split(".", 1)[1] if "." in r.get("domain", "") else "com")
+        if tld not in order: order.append(tld)
+        g["st"][tld] = r.get("status", "free")
+    out = []
+    for n, g in groups.items():
+        r = g["rec"]
+        free = [t for t in order if g["st"].get(t) == "free"]
+        if not a.all and (not free or (a.require and a.require not in free)): continue
         disp = r.get("display") or n.capitalize()
         e = ending(n, disp)
         so, lo = sound(n, e), look(n, e)
         x = rat.get(n, {})
         so, lo = x.get("sound", so), x.get("look", lo)
         tier = x.get("tier") or ("best" if so >= 5 and lo >= 4 else "good" if so >= 4 else "okay" if so >= 3 else "hard")
-        out.append({"n": n, "d": disp, "dom": r.get("domain", n + ".com"), "style": r.get("style", ""),
+        out.append({"n": n, "d": disp, "dom": n + "." + (free[0] if free else order[0]), "free": free, "style": r.get("style", ""),
                     "e": e, "sy": syllables(n, e), "so": so, "lo": lo, "t": tier, "s": x.get("say", say(n))})
     order = {"best": 0, "good": 1, "okay": 2, "hard": 3}
     out.sort(key=lambda x: (order[x["t"]], -(x["so"] + x["lo"]), x["n"]))

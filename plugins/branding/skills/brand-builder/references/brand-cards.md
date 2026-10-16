@@ -41,3 +41,33 @@ Write product-specific copy, then show:
   carries a link preview of the shared item, not a product blurb. Use made-up people.
 - **Social post**: a square image in the brand ground with a short headline and one product
   motif, plus a caption written in the brand's voice.
+
+# The full brand board (Phase 7, for the chosen name only)
+
+The light card was for choosing. Once a name is chosen, build one full board for it. The
+method follows the shape of the community "brandkit" skill (credited in SKILL.md), written
+here in our own words.
+
+1. **Brief**: industry, audience, two or three competitors, three brand attributes. Fill gaps
+   with stated assumptions and mark them as assumptions.
+2. **Positioning**: "For [audience], [name] is the [category] that [difference]." Test every
+   later choice against this sentence; drop anything that does not serve it.
+3. **Two or three directions** (for example quiet product versus loud social, geometric versus
+   warm), each with a one-line rationale. Recommend one and say why.
+4. **Colour system, six colours at most**: one primary, one or two secondary, two neutrals, one
+   accent. Each has a HEX value and a named job ("the plan card", "recording state"). No
+   decorative extras. Check every text pair with `scripts/contrast.py` in light and dark mode.
+5. **Type, two families at most**, both freely licensed (Google Fonts or the client's own
+   licence): one for headings, one for text, with fallback stacks and a size scale (a 1.25
+   ratio works well: 49, 39, 31, 25, 20, 16).
+6. **Three to five logo concepts**, wordmark first and a symbol only when the idea earns it.
+   Design and audit them with the `logo-designer` skill: one colour, inverted, and legible as a
+   24px favicon.
+7. **Mockups** using only the defined colours and fonts: a website hero, a business card, a
+   social profile image, plus the in-use set from the shortlist (app, phone, team chat, post).
+8. **One page** that puts it together, and a short text spec: the positioning sentence, the
+   colour table (HEX and job), the fonts with their licence, why each logo concept works, and
+   three don'ts.
+
+Every decision gets one sentence of reasoning, not just an assertion. No category clichés
+(lightbulbs, gears, handshakes, robot chat bubbles) unless there is a deliberate twist.

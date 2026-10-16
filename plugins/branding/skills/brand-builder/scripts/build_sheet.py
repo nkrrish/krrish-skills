@@ -45,6 +45,7 @@ section h2{font-family:var(--font-display);font-weight:600;font-size:21px;margin
 .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
 .meta span{border:1px solid var(--line);border-radius:999px;padding:1px 7px}
 .meta b{font-weight:500;color:var(--fg)}
+.meta .tl{border-color:var(--accent);color:var(--accent)}
 .acts{display:flex;gap:2px;margin-top:8px;align-items:center}
 .acts button,.acts a{height:28px;min-width:28px;padding:0 8px;border:0;border-radius:7px;background:transparent;color:var(--muted);font:500 12.5px var(--font-body);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
 .acts button:hover,.acts a:hover{background:var(--bg);color:var(--fg)}
@@ -63,7 +64,7 @@ details.stars .tile{background:var(--bg)}
 JS = r"""
 const ENDN={plain:"plain",io:"-io",ly:"-ly",made:"made-up ending",one:"+1 letter",hq:"+HQ",two:"+2 letters"};
 const TIER={best:0,good:1,okay:2,hard:3};
-let fEnd="all",fSyl="all",fSo=0,fLo=0,fSort="rec",len="all",q="",starOnly=false,showHidden=false;
+let fTld="all",fEnd="all",fSyl="all",fSo=0,fLo=0,fSort="rec",len="all",q="",starOnly=false,showHidden=false;
 let st={stars:{},hidden:{}};
 try{st=JSON.parse(localStorage.getItem(KEY)||"null")||st}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
@@ -74,7 +75,7 @@ function tile(d){
   const nm=el("div","nm",d.d||d.n);if(!d.d||d.d.toLowerCase()===d.n)nm.append(el("small",null,"."+(d.dom||"").split(".").pop()));
   t.append(nm,el("div","say",d.gone?"No longer in the list. Check the domain again.":(d.dom+" · "+d.s)));
   if(!d.gone){const m=el("div","meta");const a1=el("span");a1.append("sound ",el("b",null,d.so+"/5"));const a2=el("span");a2.append("look ",el("b",null,d.lo+"/5"));
-    m.append(a1,a2,el("span",null,d.sy+" syllables"),el("span",null,d.n.length+" letters"),el("span",null,ENDN[d.e]||""));t.append(m)}
+    m.append(...(d.free||[]).map(x=>el("span","tl","."+x)),a1,a2,el("span",null,d.sy+" syllables"),el("span",null,d.n.length+" letters"),el("span",null,ENDN[d.e]||""));t.append(m)}
   const a=el("div","acts");
   const sb=el("button",st.stars[d.n]?"on":"",st.stars[d.n]?"★ Starred":"☆ Star");sb.setAttribute("aria-pressed",!!st.stars[d.n]);
   sb.onclick=()=>{st.stars[d.n]?delete st.stars[d.n]:st.stars[d.n]=1;save();render()};
@@ -93,7 +94,7 @@ function render(){
     cp.onclick=async()=>{try{await navigator.clipboard.writeText(txt);cp.textContent="Copied "+starred.length+" names"}catch(e){cp.textContent="Select the list below"}setTimeout(()=>cp.textContent="Copy my stars",1600)};
     const g=el("div","grid");for(const d of starred)g.append(tile(d));det.append(sm,cp,el("p","plain",txt),g);root.append(det);
   }
-  let items=DATA.filter(d=>(len==="all"||d.n.length==+len)&&(!q||d.n.includes(q)||(d.d||"").toLowerCase().includes(q))&&(!starOnly||st.stars[d.n])&&(showHidden||!st.hidden[d.n])&&(fEnd==="all"||d.e===fEnd)&&(fSyl==="all"||(fSyl==="4"?d.sy>=4:d.sy==+fSyl))&&d.so>=fSo&&d.lo>=fLo);
+  let items=DATA.filter(d=>(len==="all"||d.n.length==+len)&&(!q||d.n.includes(q)||(d.d||"").toLowerCase().includes(q))&&(!starOnly||st.stars[d.n])&&(showHidden||!st.hidden[d.n])&&(fTld==="all"||(d.free||[]).includes(fTld))&&(fEnd==="all"||d.e===fEnd)&&(fSyl==="all"||(fSyl==="4"?d.sy>=4:d.sy==+fSyl))&&d.so>=fSo&&d.lo>=fLo);
   const S={so:(a,b)=>b.so-a.so||b.lo-a.lo,lo:(a,b)=>b.lo-a.lo||b.so-a.so,both:(a,b)=>(b.so+b.lo)-(a.so+a.lo),sy:(a,b)=>a.sy-b.sy||b.so-a.so,len:(a,b)=>a.n.length-b.n.length||b.so-a.so,az:(a,b)=>a.n.localeCompare(b.n)};
   if(S[fSort])items.sort(S[fSort]);
   const s=el("section");s.append(el("h2",null,"All names · "+items.length),el("p","sub",fSort==="rec"?"Recommended order: best sounding first.":"Sorted by your choice above."));
@@ -103,8 +104,9 @@ function render(){
 document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{len=b.dataset.len;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
 document.getElementById("q").oninput=e=>{q=e.target.value.trim().toLowerCase();render()};
 for(const [id,fn] of [["starOnly",v=>starOnly=v],["showHidden",v=>showHidden=v]]){const b=document.getElementById(id);b.onclick=()=>{const v=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",v);fn(v);render()}}
+if(document.getElementById("fTld"))document.getElementById("fTld").onchange=e=>{fTld=e.target.value;render()};
 for(const [id,set] of [["fEnd",v=>fEnd=v],["fSyl",v=>fSyl=v],["fSo",v=>fSo=+v],["fLo",v=>fLo=+v],["fSort",v=>fSort=v]])document.getElementById(id).onchange=e=>{set(e.target.value);render()};
-document.getElementById("reset").onclick=()=>{fEnd="all";fSyl="all";fSo=0;fLo=0;fSort="rec";len="all";q="";starOnly=false;showHidden=false;
+document.getElementById("reset").onclick=()=>{fTld="all";if(document.getElementById("fTld"))document.getElementById("fTld").value="all";fEnd="all";fSyl="all";fSo=0;fLo=0;fSort="rec";len="all";q="";starOnly=false;showHidden=false;
   for(const [id,v] of [["fEnd","all"],["fSyl","all"],["fSo","0"],["fLo","0"],["fSort","rec"],["q",""]])document.getElementById(id).value=v;
   document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.len==="all"));
   for(const id of ["starOnly","showHidden"])document.getElementById(id).setAttribute("aria-pressed","false");render()};
@@ -124,9 +126,15 @@ def main():
     data = json.load(open(a.input))
     e = html.escape
     lens = sorted({len(d["n"]) for d in data})
+    tlds = []
+    for d in data:
+        for x in d.get("free", []):
+            if x not in tlds: tlds.append(x)
+    tld_select = ('<label class="fl">Domain <select id="fTld"><option value="all">Any free domain</option>'
+                  + "".join(f'<option value="{e(x)}">.{e(x)} free</option>' for x in tlds) + "</select></label>") if len(tlds) > 1 else ""
     seg = '<button data-len="all" aria-pressed="true">All</button>' + "".join(
         f'<button data-len="{n}" aria-pressed="false">{n} letters</button>' for n in lens)
-    intro = a.intro or (f"{len(data)} names whose domain was free" + (f" when checked on {a.date}" if a.date else "")
+    intro = a.intro or (f"{len(data)} names with at least one free domain" + (f" when checked on {a.date}" if a.date else "")
                         + (f", out of {a.tried:,} tried" if a.tried else "") + ". Best sounding first. Sound and look are rough ratings out of 5. "
                         "Star the ones you like and hide the rest; your picks stay in this browser. When you are ready, open Your stars and press Copy my stars.")
     body = f"""<div class="wrap">
@@ -140,7 +148,7 @@ def main():
 <span class="count" id="count"></span>
 <div class="row2">
 <label class="fl">Ending <select id="fEnd"><option value="all">Any ending</option><option value="plain">Plain made-up</option><option value="io">Ends in -io</option><option value="ly">Ends in -ly</option><option value="made">-ix, -um, -ena, -ivo</option><option value="one">Plus one letter</option><option value="hq">Plus HQ</option><option value="two">Plus two letters</option></select></label>
-<label class="fl">Syllables <select id="fSyl"><option value="all">Any</option><option value="2">2</option><option value="3">3</option><option value="4">4 or more</option></select></label>
+{tld_select}<label class="fl">Syllables <select id="fSyl"><option value="all">Any</option><option value="2">2</option><option value="3">3</option><option value="4">4 or more</option></select></label>
 <label class="fl">Sound <select id="fSo"><option value="0">Any</option><option value="4">4 and up</option><option value="5">5 only</option></select></label>
 <label class="fl">Look <select id="fLo"><option value="0">Any</option><option value="4">4 and up</option><option value="5">5 only</option></select></label>
 <label class="fl">Sort <select id="fSort"><option value="rec">Recommended</option><option value="so">Best sounding</option><option value="lo">Best looking</option><option value="both">Sound plus look</option><option value="sy">Fewest syllables</option><option value="len">Shortest</option><option value="az">A to Z</option></select></label>
@@ -148,7 +156,7 @@ def main():
 </div>
 </div>
 <div id="list"></div>
-<p class="note">Availability came from a registry lookup and can change at any time; nothing is reserved, and some free names are premium priced. Sound and look scores are judgements, not measurements.</p>
+<p class="note">Green tags show which of the checked domains are free for each name. Availability came from a registry lookup and can change at any time; nothing is reserved, and some free names are premium priced. Sound and look scores are judgements, not measurements.</p>
 </div>
 <script>
 const KEY="brand-builder-sheet";

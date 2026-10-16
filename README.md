@@ -68,7 +68,8 @@ here is why":
    hate, and your domain rules: plain `.com` only, or liked prefixes and suffixes.
 2. **Generates hundreds of short names** in several styles: coined (vamlin), formula (Zernio,
    Cirnio), name plus a letter (BenQ, RecapQ), name plus two letters (TikoHQ), prefix plus word.
-3. **Checks every `.com` live** through public RDAP, no account or key needed.
+3. **Checks every domain you pick** (`.com`, `.ai`, `.app`, `.io`, country codes) live with the
+   registries, through RDAP or WHOIS, no account or key needed.
 4. **Puts the free ones in a sheet** you filter by ending, syllables, sound and look, then star
    and hide. "Copy my stars" hands your picks back.
 5. **Builds a shortlist page** for your stars: a light brand card per name (mark, wordmark, four
@@ -76,7 +77,8 @@ here is why":
    search and meanings, and in-use mockups (app, phone, team chat, social post).
 6. **Deep-checks the finalists**: domains and misspellings, a USPTO first pass, handles, and a
    hear-it-then-spell-it test (six voices, two speech-to-text models, exact spellings out of 24).
-7. **Helps you choose** with an ownership-first comparison, then hands off to `logo-designer`.
+7. **Helps you choose** with an ownership-first comparison, then builds a full brand board for
+   the winner (directions, colour system, type, logo concepts via `logo-designer`, mockups).
 
 Recordings and the hearing test need `OPENAI_API_KEY`. Nothing is ever bought or filed without
 your explicit yes.

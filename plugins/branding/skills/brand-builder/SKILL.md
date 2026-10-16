@@ -31,9 +31,11 @@ asking anything. Otherwise ask, in one message, at most these:
 2. Three words for how it should feel (for example calm, playful, precise).
 3. Names you like and names you dislike, from anywhere. These show taste, not templates:
    never produce lookalikes or parodies of them.
-4. Domain rules: must the plain `.com` be free, or is `prefix + name + .com` fine? Which
-   prefixes and suffixes do you like or hate (see the list in `references/naming.md`)?
-   Any TLDs to avoid?
+4. Domains: which endings should be checked at all? Offer a short pick list and let them
+   choose any mix: `.com`, `.ai`, `.app`, `.io`, `.co`, `.dev`, `.so`, `.xyz`, a country
+   code, or anything else they name. Which one must be free for a name to count (often
+   `.com`), and which are nice to have? Is `prefix + name` on that domain fine, and which
+   prefixes and suffixes do they like or hate (see `references/naming.md`)?
 5. Hard limits: maximum letters (default 8), words or sounds to avoid, languages that matter.
 
 Write the answers into a short brief at the top of your working folder and reuse it in every
@@ -58,14 +60,17 @@ scripts/gen_names.py --seeds "cue,nod,memo,tide" --styles coined,formula,letter,
   shape (sharp first letter, firm middle pair, soft ending; or root plus one capital letter)
   and generate that shape across all first letters.
 
-## Phase 2. Check every .com
+## Phase 2. Check every domain they picked
 
 ```bash
-scripts/check_domains.py names.json --tld com --out checked.json
+scripts/check_domains.py names.json --tld com,ai,app --out checked.json
 ```
 
-It uses the public RDAP registry (no account, no key): 404 means unregistered, 200 means
-taken. If a domain-registrar connector is available (for example the Vercel domains MCP with
+Pass exactly the TLDs the user picked, in their order of preference. The script asks each
+registry directly, with no account or key: RDAP where the registry has it (found through the
+IANA bootstrap list), WHOIS for the many country codes that do not (for example `.io`,
+`.co`, `.so`, `.me`). 404 or "not found" means unregistered. "unknown" is never free: re-run
+it. If a domain-registrar connector is available (for example the Vercel domains MCP with
 `get_bulk_availability` and `get_bulk_price`), you may use it instead or as well; it also
 gives prices. Re-check a sample of results yourself whenever a helper agent ran the checks.
 Free means free right now, not reserved: say so.
@@ -78,7 +83,7 @@ firmer coined shapes. Report the counts honestly, then generate more in the styl
 Score the free names, then build the sheet:
 
 ```bash
-scripts/score_names.py checked.json --out scored.json [--ratings my_ratings.json]
+scripts/score_names.py checked.json --tlds com,ai,app [--require com] --out scored.json [--ratings my_ratings.json]
 scripts/build_sheet.py scored.json --title "Free .com names" --out sheet.html
 ```
 
@@ -87,8 +92,11 @@ and an ending type. The scores are heuristics: before building the sheet, put yo
 judgement on the top 40 or so by writing a ratings file (`{"name": {"sound": 5, "look": 4,
 "tier": "best", "say": "VAM-lin"}}`); `references/naming.md` explains what earns each score.
 
+`--require` keeps only names whose must-have domain is free; without it a name stays if any
+picked domain is free, and its tile shows which ones in green.
+
 The sheet is one HTML page (publish it as an Artifact where available, otherwise hand over
-the file) with: search, filters for length, ending (plain, -io, -ly, one letter, HQ, two
+the file) with: search, a domain filter (when more than one TLD was checked), filters for length, ending (plain, -io, -ly, one letter, HQ, two
 letters), syllables, sound and look, sorting, Star and Hide on every name, a collapsible
 "Your stars" box with a "Copy my stars" button, and a Register link. Stars live in the
 viewer's browser only, so you cannot read them: when the user is ready, ask them to press
@@ -129,7 +137,7 @@ republish.
 
 Run all of these on every finalist so the comparison is fair:
 
-- **Domains**: the exact `.com`, the other TLDs they might want, and the misspellings people
+- **Domains**: every TLD they picked, the other TLDs they might want later, and the misspellings people
   would type after hearing the name (the hearing test tells you which). Prices if a registrar
   tool is available.
 - **Trademark first pass**: a helper agent with the brief in `references/research.md`. It should
@@ -152,12 +160,14 @@ and the conditions that would change it. Separate what branding can fix (sound, 
 meaning) from what it cannot (someone else owns the name, the domain or the search results).
 When the user pushes back with new information ("say it like triple"), re-test and update.
 
-## Phase 7. Hand-off
+## Phase 7. Hand-off and the full brand board
 
 When a name is chosen: offer to buy the domains (never buy anything without an explicit yes,
-naming each domain and the total price), design the final mark with the `logo-designer`
-skill, and build a design system or brand board (the bundled `canvas-design` and
-`design-taste-frontend` skills help with posters and pages). In a codebase, offer to change
+naming each domain and the total price), then build the full brand board for that one name
+following the second half of `references/brand-cards.md`: positioning, two or three design
+directions with a recommendation, a colour system, type, logo concepts (designed and audited
+with the `logo-designer` skill), mockups and a short spec with three don'ts. The bundled
+`canvas-design` and `design-taste-frontend` skills help with posters and pages. In a codebase, offer to change
 the name everywhere users see it, and nowhere they don't.
 
 ## Rules that apply throughout
