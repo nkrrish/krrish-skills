@@ -11,10 +11,33 @@ given by --tlds (default: the order they were checked), and "dom" is the first o
 heuristics for names you have judged by ear:
   {"vamlin": {"sound": 5, "look": 4, "tier": "best", "say": "VAM-lin"}}
 Tiers: best, good, okay, hard. Without a rating the tier comes from the scores.
+
+Prefixed and suffixed domains: when a record has "brand" (from gen_names.py), or its style is
+affix and starts with a known prefix (hey, meet, with, hello...), or is affix or pair and
+ends in a domain-only suffix (hq, labs, app, hub, kit, ai), the brand is the root. The sheet then shows
+"Jova" big with "heyjova.com" under it, and sound, look, length and syllables are scored on
+the brand, because that is what people say. "-ly" and "-io" stay part of the name (Junoly).
 """
 import argparse, json, re
 
 V = "aeiouy"
+PREFIXES = sorted("say meet with its the hello try use go get join hey my dear hi ask talk".split(), key=len, reverse=True)
+DOMAIN_ONLY = sorted("hq labs app hub kit ai".split(), key=len, reverse=True)
+
+
+def split_brand(n, r):
+    """Return (brand, via, affix): via is "prefix", "suffix" or "" when the domain is the name."""
+    b = (r.get("brand") or "").lower()
+    if not b and r.get("style") in ("affix", "pair"):
+        for p in (PREFIXES if r.get("style") == "affix" else []):
+            if n.startswith(p) and len(n) - len(p) >= 3: b = n[len(p):]; break
+        else:
+            for s in DOMAIN_ONLY:
+                if n.endswith(s) and len(n) - len(s) >= 3: b = n[:-len(s)]; break
+    if not b or b == n: return n, "", ""
+    if n.endswith(b): return b, "prefix", n[:-len(b)]
+    if n.startswith(b): return b, "suffix", n[len(b):]
+    return b, "", ""
 
 
 def ending(n, display):
@@ -97,14 +120,16 @@ def main():
         r = g["rec"]
         free = [t for t in order if g["st"].get(t) == "free"]
         if not a.all and (not free or (a.require and a.require not in free)): continue
-        disp = r.get("display") or n.capitalize()
-        e = ending(n, disp)
-        so, lo = sound(n, e), look(n, e)
-        x = rat.get(n, {})
+        b, via, aff = split_brand(n, r)
+        disp = (r.get("display") if not via or (r.get("display") or "").lower() == b else None) or b.capitalize()
+        e = ending(b, disp)
+        so, lo = sound(b, e), look(b, e)
+        x = rat.get(n) or (rat.get(b, {}) if via else {})
         so, lo = x.get("sound", so), x.get("look", lo)
         tier = x.get("tier") or ("best" if so >= 5 and lo >= 4 else "good" if so >= 4 else "okay" if so >= 3 else "hard")
         out.append({"n": n, "d": disp, "dom": n + "." + (free[0] if free else order[0]), "free": free, "style": r.get("style", ""),
-                    "e": e, "sy": syllables(n, e), "so": so, "lo": lo, "t": tier, "s": x.get("say", say(n))})
+                    "e": e, "sy": syllables(b, e), "so": so, "lo": lo, "t": tier, "s": x.get("say", say(b)),
+                    **({"b": b, "via": via, "aff": aff} if via else {})})
     order = {"best": 0, "good": 1, "okay": 2, "hard": 3}
     out.sort(key=lambda x: (order[x["t"]], -(x["so"] + x["lo"]), x["n"]))
     json.dump(out, open(a.out, "w"), indent=1)
