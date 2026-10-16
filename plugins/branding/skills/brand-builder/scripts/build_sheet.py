@@ -8,7 +8,9 @@ Usage:
 --fragment leaves out <!doctype>, <html>, <head> and <body> for hosts that wrap the page
 themselves (for example Claude Artifacts). Stars and hidden names are kept in the viewer's
 browser (localStorage key "brand-builder-sheet"); the "Copy my stars" button is how the
-user hands their picks back.
+user hands their picks back. Register and every domain tag link to --register-url (a template
+with {domain}; put an affiliate deep link here). Register uses the first free domain in the
+--tlds order of score_names.py, so the user's preferred ending comes first.
 
 Names on a prefixed or suffixed domain (scored with "b" and "via") show the brand big and the
 full domain under it ("Jova", then "on heyjova.com"), so the reader sees the proposed name,
@@ -55,6 +57,13 @@ section h2{font-family:var(--font-display);font-weight:600;font-size:21px;margin
 .fit{font-family:var(--font-mono);font-size:12px;font-weight:500;line-height:1;border-radius:7px;padding:5px 7px;border:1px solid var(--accent);white-space:nowrap}
 .fit.pure{background:var(--accent);color:var(--card)}
 .fit.aff{color:var(--fg);border-color:var(--muted);border-style:dashed}
+a.fit{text-decoration:none;cursor:pointer}
+a.fit.pure:hover{filter:brightness(1.15)}
+a.fit.aff:hover{border-style:solid;border-color:var(--fg)}
+button.fit.more{background:transparent;font:inherit;font-family:var(--font-mono);font-size:12px;cursor:pointer}
+button.fit.more:hover{color:var(--fg)}
+.acts a.reg{color:var(--fg);border:1px solid var(--line);padding:0 9px;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.acts a.reg:hover{border-color:var(--fg);background:var(--bg)}
 .fit.more{border-color:transparent;color:var(--muted)}
 .stats{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:12px;color:var(--muted);padding-top:9px;border-top:1px solid var(--line)}
 .dots{display:inline-flex;gap:2px;margin-left:5px;vertical-align:middle}
@@ -95,12 +104,16 @@ for(const d of DATA){BY[d.n]=d;const k=B(d);let g=G[k];
   if(/[A-Z]/.test(d.s||"")&&!/[A-Z]/.test(g.s||""))g.s=d.s;
 }
 const GROUPS=Object.values(G);
-for(const g of GROUPS){g.free=[...g.pure,...g.aff.map(a=>a.tld)];g.via=g.pure.length?"":"aff";if(!g.pure.length)g.dom=g.aff[0].dom;
+const AFF=["hey","meet","hello","with","say","get","join","its","the","my","dear","hq","labs","app","hub","kit","ai"];
+const TLDS=[];for(const d of DATA)for(const x of d.free||[])if(!TLDS.includes(x))TLDS.push(x);
+const rank=a=>TLDS.indexOf(a.tld)*100+(AFF.includes(a.aff)?AFF.indexOf(a.aff):50);
+for(const g of GROUPS){g.aff.sort((x,y)=>rank(x)-rank(y)||x.dom.length-y.dom.length);g.free=[...g.pure,...g.aff.map(a=>a.tld)];g.via=g.pure.length?"":"aff";if(!g.pure.length)g.dom=g.aff[0].dom;
   g.doms=[...g.pure.map(x=>g.b+"."+x),...g.aff.map(a=>a.dom)]}
 // Stars and hides used to be keyed by domain label; move them to the brand.
 for(const o of [st.stars,st.hidden])for(const k of Object.keys(o))if(BY[k]&&B(BY[k])!==k){o[B(BY[k])]=1;delete o[k]}
 save();
 const label=g=>(g.d||g.n)+" ("+(g.doms||[g.dom]).join(", ")+")";
+const regUrl=d=>REG.split("{domain}").join(encodeURIComponent(d));
 const dots=v=>{const s=el("span","dots");for(let i=1;i<=5;i++)s.append(el("i",i<=v?"f":""));return s};
 function tile(g){
   const t=el("article","tile"+(st.stars[g.n]?" star":""));
@@ -110,17 +123,19 @@ function tile(g){
   hd.append(tx,sb);t.append(hd);
   if(g.gone)return t;
   const f=el("div","fits");
-  for(const x of g.pure){const c=el("span","fit pure","."+x);c.title=g.b+"."+x+" is free";f.append(c)}
-  const MAX=6;g.aff.slice(0,MAX).forEach(a=>{const c=el("span","fit aff",a.via==="prefix"?a.aff+"···."+a.tld:"···"+a.aff+"."+a.tld);c.title=a.dom+" is free";f.append(c)});
-  if(g.aff.length>MAX){const m=el("span","fit more","+"+(g.aff.length-MAX)+" more");m.title=g.aff.slice(MAX).map(a=>a.dom).join(", ");f.append(m)}
+  const link=(c,dom)=>{const a=el("a",c);a.href=regUrl(dom);a.target="_blank";a.rel="noopener";a.title="Register "+dom;return a};
+  for(const x of g.pure){const c=link("fit pure",g.b+"."+x);c.textContent="."+x;f.append(c)}
+  const MAX=6,open=!!st.open&&st.open[g.n];
+  g.aff.slice(0,open?g.aff.length:MAX).forEach(a=>{const c=link("fit aff",a.dom);c.textContent=a.via==="prefix"?a.aff+"···."+a.tld:"···"+a.aff+"."+a.tld;f.append(c)});
+  if(g.aff.length>MAX&&!open){const m=el("button","fit more","+"+(g.aff.length-MAX)+" more");m.title=g.aff.slice(MAX).map(a=>a.dom).join(", ");
+    m.onclick=()=>{st.open=st.open||{};st.open[g.n]=1;save();render()};f.append(m)}
   t.append(f);
   const sx=el("div","stats");const a1=el("span",null,"Sound");a1.append(dots(g.so));const a2=el("span",null,"Look");a2.append(dots(g.lo));
   sx.append(a1,a2,el("span",null,g.sy+" syl · "+g.b.length+" letters"));t.append(sx);
   const a=el("div","acts");
-  const cb=el("button",null,"Copy");cb.title="Copy "+g.doms.join(", ");cb.onclick=async()=>{const v=g.doms.join(", ");try{await navigator.clipboard.writeText(v);cb.textContent="Copied"}catch(e){cb.textContent=v}setTimeout(()=>cb.textContent="Copy",1400)};
   const hb=el("button",null,st.hidden[g.n]?"Unhide":"Hide");hb.onclick=()=>{st.hidden[g.n]?delete st.hidden[g.n]:st.hidden[g.n]=1;save();render()};
-  const r=el("a","reg","Register ↗");r.title="Look up "+g.doms[0]+" at a registrar";r.href="https://www.namecheap.com/domains/registration/results/?domain="+encodeURIComponent(g.doms[0]);r.target="_blank";r.rel="noopener";
-  a.append(cb,hb,r);t.append(a);return t;
+  const r=el("a","reg","Register "+g.doms[0]+" ↗");r.title="Register "+g.doms[0]+". Tap any tag above to register that domain instead.";r.href=regUrl(g.doms[0]);r.target="_blank";r.rel="noopener";
+  a.append(hb,r);t.append(a);return t;
 }
 const TIERS=[["best","Top picks","Best sounding and best looking"],["good","Good","Pleasant, a little plainer"],["okay","Okay","Readable but stiff"],["hard","Harsh","Hard sounds or odd clusters"]];
 function render(){
@@ -165,6 +180,8 @@ def main():
     ap.add_argument("--date", default="")
     ap.add_argument("--tried", type=int, default=0)
     ap.add_argument("--fragment", action="store_true")
+    ap.add_argument("--register-url", default="https://www.namecheap.com/domains/registration/results/?domain={domain}",
+                    help="where Register and the domain tags link; {domain} is replaced, e.g. an affiliate deep link")
     a = ap.parse_args()
     data = json.load(open(a.input))
     e = html.escape
@@ -206,6 +223,7 @@ def main():
 </div>
 <script>
 const KEY="brand-builder-sheet";
+const REG={json.dumps(a.register_url)};
 const DATA={json.dumps(data, separators=(",", ":")).replace("</", "<\\/")};
 {JS}
 </script>"""
