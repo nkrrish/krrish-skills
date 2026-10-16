@@ -1,12 +1,15 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "krrish-skills",
-  "description": "Skills that verify their own output — each ships the tooling to prove it worked",
-  "owner": { "name": "Krishna", "url": "https://github.com/nkrrish" },
+  "description": "Skills that verify their own output \u2014 each ships the tooling to prove it worked",
+  "owner": {
+    "name": "Krishna",
+    "url": "https://github.com/nkrrish"
+  },
   "plugins": [
     {
       "name": "branding",
-      "description": "Design icon marks and logos as SVG, with a measurable quality gate: 16px legibility, monochrome-template survival, and a prior-art check against 3,450 real brand marks.",
+      "description": "Find and vet a brand name (free .com, filterable name sheet, brand cards, voice tests, trademark and handle checks), then design the icon mark as SVG with a measurable quality gate: 16px legibility, monochrome survival, and a prior-art check against 3,450 real marks.",
       "source": "./plugins/branding",
       "category": "design"
     },

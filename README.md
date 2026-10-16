@@ -59,6 +59,31 @@ stated preference, one arguing the opposite temperament.
 brew install librsvg imagemagick     # or: npm i -g @resvg/resvg-js-cli
 ```
 
+### brand-builder: find, brand and choose a name
+
+The step before the logo. Takes a product from "we need a name" to "this is the name, and
+here is why":
+
+1. **Asks what you are building** (or reads the codebase), the feel you want, names you like and
+   hate, and your domain rules: plain `.com` only, or liked prefixes and suffixes.
+2. **Generates hundreds of short names** in several styles: coined (vamlin), formula (Zernio,
+   Cirnio), name plus a letter (BenQ, RecapQ), name plus two letters (TikoHQ), prefix plus word.
+3. **Checks every `.com` live** through public RDAP, no account or key needed.
+4. **Puts the free ones in a sheet** you filter by ending, syllables, sound and look, then star
+   and hide. "Copy my stars" hands your picks back.
+5. **Builds a shortlist page** for your stars: a light brand card per name (mark, wordmark, four
+   colours with contrast checked, favicon), pronunciation recordings, research on app stores,
+   search and meanings, and in-use mockups (app, phone, team chat, social post).
+6. **Deep-checks the finalists**: domains and misspellings, a USPTO first pass, handles, and a
+   hear-it-then-spell-it test (six voices, two speech-to-text models, exact spellings out of 24).
+7. **Helps you choose** with an ownership-first comparison, then hands off to `logo-designer`.
+
+Recordings and the hearing test need `OPENAI_API_KEY`. Nothing is ever bought or filed without
+your explicit yes.
+
+Also bundled, under their own licences: `canvas-design` (Anthropic, Apache-2.0) for posters and
+social images, and `design-taste-frontend` (taste-skill, MIT) for pages that do not look templated.
+
 ## planning — per-project todo board
 
 A three-column board (Todo / Review / Done) published as a private Artifact backed by a shared

@@ -86,6 +86,32 @@ plugins/media/skills/higgsfield/
   "Higgsfield" is a trademark of Higgsfield AI. This plugin is not affiliated
   with, endorsed by or sponsored by Higgsfield AI.
 
+plugins/branding/skills/brand-builder/
+
+  Original work. The light brand-card step (references/brand-cards.md) was
+  inspired by the community "brandkit" skill curated by Collective Brain
+  (collectivebrain.de) and WhiteFox Automations (whitefox-automations.com).
+  No text from it is included, because it is published without a licence.
+
+plugins/branding/skills/canvas-design/
+
+  The canvas-design skill by Anthropic, PBC, distributed unmodified under the
+  Apache License, Version 2.0. The full licence is in
+  plugins/branding/skills/canvas-design/LICENSE.txt. The fonts in its
+  canvas-fonts/ folder are each distributed under the SIL Open Font License 1.1;
+  every font ships with its own *-OFL.txt file.
+
+  https://github.com/anthropics/skills
+
+plugins/branding/skills/design-taste-frontend/
+
+  The design-taste-frontend skill from taste-skill by Leonxlnx, distributed
+  under the MIT License as installed by its user (it may differ from the latest
+  upstream version). The full licence is in
+  plugins/branding/skills/design-taste-frontend/LICENSE.
+
+  https://github.com/Leonxlnx/taste-skill
+
 --------------------------------------------------------------------------------
 RUNTIME DEPENDENCIES (not distributed with this repository)
 --------------------------------------------------------------------------------

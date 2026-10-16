@@ -1,19 +1,24 @@
 {
   "name": "branding",
-  "version": "1.0.1",
-  "description": "Icon-mark and logo design in SVG, with an audit suite that measures whether the output actually works.",
+  "version": "1.2.0",
+  "description": "Name, brand and logo design: find a coined name with a free .com, compare a shortlist with brand cards, recordings and ownership checks, then design the mark in SVG with an audit suite.",
   "author": {
     "name": "Krishna",
     "url": "https://github.com/nkrrish"
   },
   "license": "GPL-3.0-or-later",
   "keywords": [
-    "logo",
-    "icon",
-    "svg",
-    "favicon",
+    "app-icon",
+    "brand-board",
+    "brand-name",
     "branding",
     "design",
-    "app-icon"
+    "domain",
+    "favicon",
+    "icon",
+    "logo",
+    "naming",
+    "svg",
+    "trademark"
   ]
 }
