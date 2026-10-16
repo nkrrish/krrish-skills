@@ -107,10 +107,11 @@ viewer's browser only, so you cannot read them: when the user is ready, ask them
 big with "on heyjova.com" under it, and length, sound and syllables are judged on "Jova".
 `gen_names.py` records this as `brand`; for names you add by hand, set `"brand"` on the record
 (or style them `affix` or `pair` and the scorer strips the known prefixes and the domain-only
-suffixes hq, labs, app, hub, kit and ai). Every tile carries a domain tag so pure domains stand
-out: one solid tag per free ending the user picked ("pure .com", "pure .ai", "pure .me") when
-the name itself is the domain, a dashed "with···.com" or "···hq.com" when the affix lives only in the domain. A "Domain shape"
-filter shows one kind at a time. "-ly" and "-io" stay part of the name (Junoly). Say
+suffixes hq, labs, app, hub, kit and ai). The sheet shows one tile per name with
+every free domain for it: a solid green tag per ending where the name itself is free (.com,
+.ai, .me), and a dashed tag per prefixed or suffixed domain ("hey···.com", "···hq.com"). Tiles
+are grouped by tier (Top picks, Good, Okay, Harsh), with sound and look as dot meters. A
+"Domain shape" filter shows one kind at a time. "-ly" and "-io" stay part of the name (Junoly). Say
 it the same way in chat and on the shortlist: "Jova (heyjova.com)", never "HeyJova".
 
 Keep iterating on the same sheet: add rounds at the top as "Like your picks", remove styles
