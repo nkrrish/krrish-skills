@@ -134,7 +134,7 @@ function tile(g){
   sx.append(a1,a2,el("span",null,g.sy+" syl · "+g.b.length+" letters"));t.append(sx);
   const a=el("div","acts");
   const hb=el("button",null,st.hidden[g.n]?"Unhide":"Hide");hb.onclick=()=>{st.hidden[g.n]?delete st.hidden[g.n]:st.hidden[g.n]=1;save();render()};
-  const r=el("a","reg","Register "+g.doms[0]+" ↗");r.title="Register "+g.doms[0]+". Tap any tag above to register that domain instead.";r.href=regUrl(g.doms[0]);r.target="_blank";r.rel="noopener";
+  const r=el("a","reg","Register ↗");r.title="Register "+g.doms[0]+". Tap any tag above to register that domain instead.";r.href=regUrl(g.doms[0]);r.target="_blank";r.rel="noopener";
   a.append(hb,r);t.append(a);return t;
 }
 const TIERS=[["best","Top picks","Best sounding and best looking"],["good","Good","Pleasant, a little plainer"],["okay","Okay","Readable but stiff"],["hard","Harsh","Hard sounds or odd clusters"]];
