@@ -7,6 +7,15 @@ claude plugin marketplace update krrish-skills
 claude plugin update <plugin>@krrish-skills   # restart required
 ```
 
+## branding 1.2.1
+
+- `canvas-design` and `design-taste-frontend` are no longer bundled, so you always get their
+  latest versions. New `check_deps.py` finds them wherever they are installed (personal skills,
+  any plugin, `npx skills`, the project) and only suggests an install when one is missing.
+- `voice.py setup` connects an OpenAI key through a hidden-input dialog and stores it in the
+  macOS Keychain (or a mode-600 file elsewhere); `voice.py status` says whether one is
+  connected. The skill asks before recordings instead of failing silently without a key.
+
 ## branding 1.2.0
 
 New skill, `brand-builder`: name finding and vetting before the logo.

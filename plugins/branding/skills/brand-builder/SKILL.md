@@ -115,8 +115,12 @@ For the pasted stars, build one shortlist page. For each name:
    `references/research.md` (app stores, Google presence, meanings in other languages,
    ownability score 1 to 5, sources). Spot-check anything surprising yourself.
 3. **Recordings**: `scripts/voice.py say` makes two clips per name, how it is meant to sound and
-   how a stranger would first read the spelling. Needs `OPENAI_API_KEY`; if there is none, skip
-   the clips and show the respelling only.
+   how a stranger would first read the spelling. Run `scripts/voice.py status` first. If no key
+   is connected, ask the user whether they want recordings (they need an OpenAI API key and cost
+   a fraction of a cent each). If yes, ask them to run `scripts/voice.py setup` themselves: it
+   opens a hidden-input dialog and saves the key to their Keychain, so the key never passes
+   through the chat. Never ask them to paste a key into the conversation. If no, skip the clips
+   and show the respelling only.
 4. **A light brand card** per name, following `references/brand-cards.md`: a simple mark, the
    wordmark, four colours each with a job, contrast checked with `scripts/contrast.py`, a 24px
    favicon and an app icon, one sentence of rationale. Light means one card, not a brand book.
@@ -166,8 +170,14 @@ When a name is chosen: offer to buy the domains (never buy anything without an e
 naming each domain and the total price), then build the full brand board for that one name
 following the second half of `references/brand-cards.md`: positioning, two or three design
 directions with a recommendation, a colour system, type, logo concepts (designed and audited
-with the `logo-designer` skill), mockups and a short spec with three don'ts. The bundled
-`canvas-design` and `design-taste-frontend` skills help with posters and pages. In a codebase, offer to change
+with the `logo-designer` skill), mockups and a short spec with three don'ts.
+
+The companion skills `canvas-design` (posters, social images) and `design-taste-frontend`
+(pages that do not look templated) help here but are not bundled. Before using or suggesting
+them, run `scripts/check_deps.py`: it finds them in personal skills, any installed plugin,
+`npx skills` installs and the project. Use whichever copy is found. Only if one is missing,
+show its install command and ask; never install it yourself, and never install a second
+copy of something that is already there. Everything works without them. In a codebase, offer to change
 the name everywhere users see it, and nowhere they don't.
 
 ## Rules that apply throughout
@@ -181,7 +191,7 @@ the name everywhere users see it, and nowhere they don't.
 
 ## Credits
 
-The light brand-card method is inspired by the community "brandkit" skill curated by
-Collective Brain (collectivebrain.de) and WhiteFox Automations. It is not bundled because it
-carries no licence. `canvas-design` (Anthropic, Apache-2.0) and `design-taste-frontend`
-(Leonxlnx/taste-skill, MIT) ship in this plugin with their licences; see the repository NOTICE.
+The light brand-card and brand-board method is inspired by the community "brandkit" skill
+curated by Collective Brain (collectivebrain.de) and WhiteFox Automations; it is written here
+in our own words. `canvas-design` is by Anthropic (github.com/anthropics/skills) and
+`design-taste-frontend` by Leonxlnx (github.com/Leonxlnx/taste-skill).

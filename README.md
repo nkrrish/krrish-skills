@@ -91,8 +91,10 @@ here is why":
 Recordings and the hearing test need `OPENAI_API_KEY`. Nothing is ever bought or filed without
 your explicit yes.
 
-Also bundled, under their own licences: `canvas-design` (Anthropic, Apache-2.0) for posters and
-social images, and `design-taste-frontend` (taste-skill, MIT) for pages that do not look templated.
+For the final brand board it can use two companion skills, `canvas-design` (Anthropic) and
+`design-taste-frontend` (taste-skill). They are not bundled, so you always get their latest
+versions: `check_deps.py` looks for them wherever you installed them (personal skills, any
+plugin, `npx skills`, the project) and only suggests an install if they are missing.
 
 ## planning — per-project todo board
 
