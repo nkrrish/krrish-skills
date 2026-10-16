@@ -15,6 +15,8 @@ claude plugin update <plugin>@krrish-skills   # restart required
   `score_names.py` scores sound, look, length and syllables on the brand and can infer it for
   hand-added affix and pair names; `build_sheet.py` adds a "Domain shape" filter and copies
   stars as "Jova (heyjova.com)".
+- Every tile has a domain tag, so pure domains are easy to spot: solid "pure .com" when the
+  name is the domain, dashed "with···.com" or "···hq.com" when the affix is only in the domain.
 
 ## branding 1.2.1
 

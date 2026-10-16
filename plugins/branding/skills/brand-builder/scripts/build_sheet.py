@@ -48,6 +48,9 @@ section h2{font-family:var(--font-display);font-weight:600;font-size:21px;margin
 .say{font-family:var(--font-mono);font-size:12.5px;color:var(--muted)}
 .dom{font-family:var(--font-mono);font-size:12.5px;color:var(--fg);overflow-wrap:anywhere}
 .dom i{font-style:normal;color:var(--muted)}
+.fit{align-self:flex-start;font-family:var(--font-mono);font-size:11.5px;font-weight:500;border-radius:999px;padding:1px 8px;margin-bottom:6px;border:1px solid var(--accent)}
+.fit.pure{background:var(--accent);color:var(--card)}
+.fit.aff{color:var(--muted);border-color:var(--line);border-style:dashed}
 .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
 .meta span{border:1px solid var(--line);border-radius:999px;padding:1px 7px}
 .meta b{font-weight:500;color:var(--fg)}
@@ -80,7 +83,9 @@ const B=d=>d.b||d.n;
 const label=d=>d.via?(d.d||B(d))+" ("+d.dom+")":d.dom;
 function tile(d){
   const t=el("article","tile"+(st.stars[d.n]?" star":""));
-  const nm=el("div","nm",d.d||d.n);if(!d.via&&(!d.d||d.d.toLowerCase()===d.n))nm.append(el("small",null,"."+(d.dom||"").split(".").pop()));
+  const tld="."+(d.dom||"").split(".").pop();
+  if(!d.gone)t.append(el("span","fit "+(d.via?"aff":"pure"),d.via?(d.via==="prefix"?d.aff+"\u00b7\u00b7\u00b7"+tld:"\u00b7\u00b7\u00b7"+d.aff+tld):"pure "+tld));
+  const nm=el("div","nm",d.d||d.n);if(!d.via)nm.append(el("small",null,tld));
   t.append(nm);
   if(d.gone)t.append(el("div","say","No longer in the list. Check the domain again."));
   else if(d.via){const dm=el("div","dom");dm.append(el("i",null,"on "),d.dom);t.append(dm,el("div","say",d.s))}
@@ -144,8 +149,8 @@ def main():
             if x not in tlds: tlds.append(x)
     tld_select = ('<label class="fl">Domain <select id="fTld"><option value="all">Any free domain</option>'
                   + "".join(f'<option value="{e(x)}">.{e(x)} free</option>' for x in tlds) + "</select></label>") if len(tlds) > 1 else ""
-    fit_select = ('<label class="fl">Domain shape <select id="fFit"><option value="all">Any</option><option value="exact">Name is the domain</option>'
-                  '<option value="prefix">Prefix in domain (heyname)</option><option value="suffix">Suffix in domain (namehq)</option></select></label>'
+    fit_select = ('<label class="fl">Domain shape <select id="fFit"><option value="all">Any</option><option value="exact">Pure domains (name.com)</option>'
+                  '<option value="prefix">Prefix in domain (with···.com)</option><option value="suffix">Suffix in domain (···hq.com)</option></select></label>'
                   ) if any(d.get("via") for d in data) else ""
     seg = '<button data-len="all" aria-pressed="true">All</button>' + "".join(
         f'<button data-len="{n}" aria-pressed="false">{n} letters</button>' for n in lens)
@@ -171,7 +176,7 @@ def main():
 </div>
 </div>
 <div id="list"></div>
-<p class="note">Green tags show which of the checked domains are free for each name. Where a tile says "on" a domain, the big word is the proposed name and the prefix or suffix lives only in the domain. Availability came from a registry lookup and can change at any time; nothing is reserved, and some free names are premium priced. Sound and look scores are judgements, not measurements.</p>
+<p class="note">Green tags show which of the checked domains are free for each name. A solid "pure .com" tag means the name itself is the domain. A dashed tag such as "with···.com" or "···hq.com" means the big word is the proposed name and the prefix or suffix lives only in the domain. Availability came from a registry lookup and can change at any time; nothing is reserved, and some free names are premium priced. Sound and look scores are judgements, not measurements.</p>
 </div>
 <script>
 const KEY="brand-builder-sheet";
