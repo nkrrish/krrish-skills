@@ -140,8 +140,11 @@ For the pasted stars, build one shortlist page. For each name:
    wordmark, four colours each with a job, contrast checked with `scripts/contrast.py`, a 24px
    favicon and an app icon, one sentence of rationale. Light means one card, not a brand book.
 5. **In use** for the names the user leans toward: an app window, a phone notification and home
-   screen icon, a team-chat message where someone asks a colleague to share their notes from
-   the product, and a social post with a caption. Write product-specific copy.
+   screen icon, a chat where one person recommends or shares something from the product, and a
+   social post with a caption. Every string in these mockups comes from the shortlist JSON
+   (`product`, overridden per name by `inuse`), so write all of it for the user's product: its
+   nav, its main item, its key card, its notification. Never leave another product's copy in
+   place. `build_shortlist.py --example companion` shows a non-meeting product.
 
 ```bash
 scripts/build_shortlist.py shortlist.json --audio audio/ --out shortlist.html

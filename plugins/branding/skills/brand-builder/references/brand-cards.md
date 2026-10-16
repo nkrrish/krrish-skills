@@ -30,15 +30,18 @@ Not a brand book: a mark, a wordmark, four colours, a favicon, one sentence.
 
 ## In-use mockups (for the two or three names the user leans toward)
 
-Write product-specific copy, then show:
+Write every string for the user's product (the script shows only what the JSON gives it, and
+leaves out what is missing), then show:
 
-- **App window**: sidebar with the logo, a real-looking item (a meeting, a document), the one
-  brand-coloured element (for a notes app: the plan card), a primary button.
-- **Phone**: a lock-screen notification and the app icon on a home screen next to two neutral
-  apps.
-- **Team chat**: a teammate asks a colleague to share their notes from the product, using the
-  name the way people talk ("can you drop your noodl notes from the Halden call?"). The reply
-  carries a link preview of the shared item, not a product blurb. Use made-up people.
+- **App window**: sidebar with the logo and the product's own nav, a real-looking item (a
+  meeting, a check-in, a document), the one brand-coloured element (for a notes app the plan
+  card, for a companion app what the user said they would try), a primary button.
+- **Phone**: a lock-screen notification the product would really send and the app icon on a
+  home screen next to two neutral apps.
+- **Chat**: people talk about the product the way they would. Work tools: a teammate asks a
+  colleague to share their notes ("can you drop your noodl notes from the Halden call?").
+  Personal apps: a friend asks, the other recommends it and shares something from it. The
+  reply carries a link preview of the shared item, not a product blurb. Use made-up people.
 - **Social post**: a square image in the brand ground with a short headline and one product
   motif, plus a caption written in the brand's voice.
 

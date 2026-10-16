@@ -122,6 +122,9 @@ check "build_sheet renders"              0 python3 "$BB/build_sheet.py" "$bb/sco
 check "sheet has its filters"            0 grep -q 'id="fEnd"' "$bb/sheet.html"
 python3 "$BB/build_shortlist.py" --example > "$bb/short.json" 2>/dev/null
 check "build_shortlist renders"          0 python3 "$BB/build_shortlist.py" "$bb/short.json" --out "$bb/short.html"
+python3 "$BB/build_shortlist.py" --example companion > "$bb/short2.json" 2>/dev/null
+python3 "$BB/build_shortlist.py" "$bb/short2.json" --out "$bb/short2.html" >/dev/null 2>&1
+check "shortlist mockups follow the product" 1 grep -q "recorded on this Mac" "$bb/short2.html"
 check "contrast passes a good pair"      0 python3 "$BB/contrast.py" "#15171C/#F6C445"
 check "contrast fails a bad pair"        1 python3 "$BB/contrast.py" "#F6C445/#F7F7F4"
 check "voice lists its commands"        0 python3 "$BB/voice.py" --help
