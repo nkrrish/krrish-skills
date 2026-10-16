@@ -14,6 +14,7 @@ claude plugin update <plugin>@krrish-skills   # restart required
   comes from the shortlist JSON, and anything missing is left off instead of showing meeting
   notes. Older meeting-style shortlist files still work.
 - `build_shortlist.py --example companion` prints a filled-in example for an AI companion app.
+
 ## branding 1.2.3
 
 - The sheet's domain tags are register links for that exact domain, and the Register button
